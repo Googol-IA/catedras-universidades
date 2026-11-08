@@ -4,7 +4,7 @@ import unicodedata
 from urllib.parse import urljoin, urlsplit
 
 COLUMNAS = [
-    "universidad", "nombre", "tipo", "entidad_colaboradora", "director", "web", "email",
+    "universidad", "nombre", "tipo", "entidad_colaboradora", "director", "web", "email", "email_tipo",
     "campus_centro", "url_origen", "fecha_captura", "clave_normalizada", "observaciones", "descripcion",
 ]
 # Palabras que no cuentan al comparar nombres (las mismas que usa el piloto).

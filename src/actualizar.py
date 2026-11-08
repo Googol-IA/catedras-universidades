@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_web  # noqa: E402
+import emails  # noqa: E402
 import extract  # noqa: E402
 from diff import comparar  # noqa: E402
 
@@ -49,6 +50,27 @@ def solo_probar(fecha):
     print(f"\nCon datos: {sum(1 for v in filas.values() if v)} de {len(extract.EXTRACTORES)}. Con fallo: {len(fallos)}.")
 
 
+def incorporar_busqueda(previo, clave):
+    """Si hay una búsqueda a fondo recién subida (cifrada), la añade a los datos anteriores.
+
+    Se hace antes de comparar para que no aparezcan como cientos de «Modificación» en Cambios.
+    """
+    ruta = RAIZ / "emails.enc.json"
+    if not ruta.exists():
+        return
+    busqueda = build_web.descifrar(json.loads(ruta.read_text(encoding="utf-8")), clave)
+    for f in previo["catedras"]:
+        if f.get("email") and not f.get("email_tipo"):
+            f["email_tipo"] = emails.TIPO_LISTADO
+        asignado = busqueda["asignados"].get(f["clave_normalizada"])
+        if asignado and not f.get("email"):
+            f.update(asignado)
+    previo["emails_desde"] = busqueda["fecha"]
+    previo["emails_genericos"] = busqueda["genericos"]
+    ruta.unlink()
+    print(f"Búsqueda de emails del {busqueda['fecha']} incorporada: {len(busqueda['asignados'])} cátedras.")
+
+
 def main():
     fecha = datetime.date.today().isoformat()
     descargar()
@@ -59,7 +81,11 @@ def main():
     clave, sal = base64.b64decode(os.environ["CLAVE_CIFRADO"]), base64.b64decode(os.environ["SAL_CIFRADO"])
     previo = build_web.descifrar(json.loads((RAIZ / "datos.enc.json").read_text(encoding="utf-8")), clave)
 
+    incorporar_busqueda(previo, clave)
     nuevas, fallos = extract.extraer_todas(fecha)
+    genericos = previo.get("emails_genericos", {})
+    buscadas, halladas = emails.aplicar(nuevas, previo["catedras"], genericos)
+    print(f"Emails: {buscadas} cátedras nuevas buscadas, {halladas} con email.")
     siglas = [u["universidad"] for u in inventario()]
     finales, cambios, pendientes, avisos = comparar(previo["catedras"], previo["fecha"], nuevas, fallos, fecha, previo.get("pendientes", {}), siglas)
 
@@ -78,7 +104,8 @@ def main():
     subprocess.run([sys.executable, str(RAIZ / "src" / "validate.py")], check=True)
     token = os.environ.get("TOKEN_BOTON")
     n, _ = build_web.construir_web(RAIZ, clave=clave, sal=sal, pendientes=pendientes,
-                                   github={"repo": REPO, "token": token} if token else None)
+                                   github={"repo": REPO, "token": token} if token else None,
+                                   extra={"emails_desde": previo.get("emails_desde"), "emails_genericos": genericos})
     print(f"Actualizado: {n} registros, {len(cambios)} cambios nuevos, {len(avisos)} universidades con problemas.")
     for a in avisos:
         print(f"  {a['universidad']}: {a['detalle']}")

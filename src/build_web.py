@@ -25,13 +25,13 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_excel import construir, leer_cambios  # noqa: E402
+from build_excel import construir, leer_cambios, leer_normativa  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
 PLANTILLA = Path(__file__).resolve().parent / "web" / "index.html"
 ITERACIONES = 600_000
 MINIMO_CONTRASENA = 12
-CAMPOS_FILA = ["fecha_captura", "universidad", "nombre", "tipo", "entidad_colaboradora", "director", "web", "email", "campus_centro",
+CAMPOS_FILA = ["fecha_captura", "universidad", "nombre", "tipo", "entidad_colaboradora", "director", "web", "email", "email_tipo", "campus_centro",
                "url_origen", "clave_normalizada", "observaciones", "descripcion"]
 CAMPOS_UNIVERSIDAD = ["universidad", "nombre_completo", "comunidad", "estado", "n_registros", "url_catedras"]
 
@@ -55,7 +55,7 @@ def cifrar(contenido, clave, sal):
     return {"sal": b64(sal), "iv": b64(iv), "iteraciones": ITERACIONES, "datos": b64(AESGCM(clave).encrypt(iv, comprimido, None))}
 
 
-def construir_web(carpeta, contrasena=None, clave=None, sal=None, pendientes=None, github=None):
+def construir_web(carpeta, contrasena=None, clave=None, sal=None, pendientes=None, github=None, extra=None):
     """Con contraseña crea clave y sal nuevas; en las actualizaciones se reutiliza la clave guardada."""
     if clave is None:
         sal = os.urandom(16)
@@ -74,6 +74,8 @@ def construir_web(carpeta, contrasena=None, clave=None, sal=None, pendientes=Non
         "cambios": leer_cambios(fecha),
         "pendientes": pendientes or {},
     }
+    contenido["normativa"] = leer_normativa()
+    contenido.update(extra or {})
     if github:
         contenido["github"] = github
     paquete = cifrar(contenido, clave, sal)

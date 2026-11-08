@@ -20,10 +20,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from comun import COLUMNAS  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
-ANCHOS = {"universidad": 11, "nombre": 58, "tipo": 9, "entidad_colaboradora": 34, "director": 30, "web": 38, "email": 28,
+ANCHOS = {"universidad": 11, "nombre": 58, "tipo": 9, "entidad_colaboradora": 34, "director": 30, "web": 38, "email": 34, "email_tipo": 12,
           "campus_centro": 28, "url_origen": 38, "fecha_captura": 12, "clave_normalizada": 38, "observaciones": 40, "descripcion": 60}
 CAMPOS_UNIVERSIDADES = ["universidad", "nombre_completo", "comunidad", "estado", "n_registros", "listado_central", "url_catedras",
                         "carga_con_javascript", "metodo_descarga", "ultima_captura", "notas"]
+CAMPOS_NORMATIVA = ["universidad", "siglas", "comunidad", "titularidad", "estado", "norma", "anio", "url", "notas"]
 CAMPOS_ERRORES = ["universidad", "tipo", "detalle"]
 CAMPOS_CAMBIOS = ["fecha", "universidad", "nombre", "tipo_cambio", "campo", "valor_anterior", "valor_nuevo"]
 
@@ -61,6 +62,11 @@ def cargar_todo(fecha=None):
 def leer_cambios(fecha):
     ruta = RAIZ / "data" / "parsed" / fecha / "_cambios.json"
     return json.loads(ruta.read_text(encoding="utf-8")) if ruta.exists() else []
+
+
+def leer_normativa():
+    """Lista recopilada a mano; la actualización no busca normas nuevas."""
+    return [{c: f.get(c, "") for c in CAMPOS_NORMATIVA} for f in leer_csv(RAIZ / "normativa.csv")]
 
 
 def escribir_hoja(hoja, campos, filas, nombre_tabla, anchos=None):
@@ -101,6 +107,8 @@ def construir(ruta_salida=None):
     escribir_hoja(hoja_errores, CAMPOS_ERRORES, errores, "Errores", {"universidad": 11, "tipo": 12, "detalle": 110})
     escribir_hoja(libro.create_sheet("Cambios"), CAMPOS_CAMBIOS, leer_cambios(fecha), "Cambios",
                   {"fecha": 12, "universidad": 11, "nombre": 58, "tipo_cambio": 24, "campo": 20, "valor_anterior": 40, "valor_nuevo": 40})
+    escribir_hoja(libro.create_sheet("Normativa"), CAMPOS_NORMATIVA, leer_normativa(), "Normativa",
+                  {"universidad": 44, "siglas": 10, "comunidad": 20, "titularidad": 12, "estado": 24, "norma": 70, "anio": 18, "url": 60, "notas": 60})
     salida = ruta_salida or RAIZ / "output" / f"catedras_universidades_{fecha}.xlsx"
     salida.parent.mkdir(parents=True, exist_ok=True)
     libro.save(salida)

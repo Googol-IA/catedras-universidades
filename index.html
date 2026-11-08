@@ -148,6 +148,11 @@ tr.fila.abierta td { border-bottom-color: transparent; background: color-mix(in 
 .col-tipo { white-space: nowrap; overflow-wrap: normal; }
 .col-entidad { min-width: 10rem; width: 20%; }
 .col-director { min-width: 9rem; width: 15%; }
+.col-email { min-width: 12rem; width: 18%; overflow-wrap: anywhere; font-size: 0.875rem; }
+.col-email a { display: block; }
+.email-generico { display: block; color: var(--tinta-2); font-size: 0.75rem; }
+.datos .email-generico { display: inline; margin-left: 0.35rem; }
+.datos dd a + a { margin-left: 0.5rem; }
 .col-centro { min-width: 8rem; width: 13%; color: var(--tinta-2); }
 .abrir { width: 1.75rem; height: 1.75rem; display: grid; place-items: center; border: 0; border-radius: 4px; background: none; color: var(--tinta-2); margin: -0.2rem 0 -0.2rem -0.1rem; }
 .abrir:hover { background: var(--acento-suave); color: var(--acento-hover); }
@@ -214,7 +219,8 @@ th.num button { justify-content: flex-end; }
 @media (max-width: 640px) { .campo-uni, .campo-uni-busca { flex: 1 1 100%; } .filtros-uni-fin { margin-left: 0; width: 100%; justify-content: space-between; } }
 
 .etiqueta-aula { display: none; }
-@media (max-width: 1100px) { .col-centro { display: none; } .fecha { display: none; } .marco-tabla { overflow-x: auto; } th { top: 0; } }
+@media (max-width: 1560px) { .col-centro { display: none; } .marco-tabla { overflow-x: auto; } th { top: 0; } .col-nombre { min-width: 13rem; } .col-entidad { min-width: 8rem; } .col-director { min-width: 7rem; } .col-email { min-width: 11rem; } .datos dd { overflow-wrap: anywhere; } }
+@media (max-width: 1100px) { .fecha { display: none; } }
 @media (max-width: 860px) {
   .cabecera { flex-wrap: wrap; gap: 0.35rem 0.75rem; padding: 0.55rem 0.9rem; position: static; }
   .cabecera h1 { font-size: 1.125rem; }
@@ -227,7 +233,9 @@ th.num button { justify-content: flex-end; }
   .barra-fin { margin-left: 0; width: 100%; }
   .barra-fin .boton { flex: 1; justify-content: center; }
   .marco-tabla { border: 0; background: none; overflow: visible; }
-  #marco-uni, #marco-cambios { border: 1px solid var(--linea); background: var(--superficie); overflow-x: auto; }
+  .pestanas { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .pestana { white-space: nowrap; flex: none; }
+  #marco-uni, #marco-cambios, #marco-nor { border: 1px solid var(--linea); background: var(--superficie); overflow-x: auto; }
   .tabla-uni td:first-child { min-width: 11rem; }
   .tabla-uni td:last-child { min-width: 17rem; }
   .tabla-catedras thead { display: none; }
@@ -238,7 +246,7 @@ th.num button { justify-content: flex-end; }
   .tabla-catedras td:first-child { grid-row: span 5; align-self: start; }
   .etiqueta-aula { display: inline-block; }
   .tabla-catedras td.col-nombre { order: -1; grid-column: 2; }
-  .tabla-catedras td.col-uni, .tabla-catedras td.col-entidad, .tabla-catedras td.col-director, .tabla-catedras td.col-centro { grid-column: 2; font-size: 0.8125rem; margin-top: 0.15rem; }
+  .tabla-catedras td.col-uni, .tabla-catedras td.col-entidad, .tabla-catedras td.col-director, .tabla-catedras td.col-email, .tabla-catedras td.col-centro { grid-column: 2; font-size: 0.8125rem; margin-top: 0.15rem; }
   .tabla-catedras td.col-tipo { display: none; }
   .tabla-catedras td.col-entidad:empty, .tabla-catedras td.col-director:empty, .tabla-catedras td.vacia { display: none; }
   .tabla-catedras td[data-etiqueta]::before { content: attr(data-etiqueta) ": "; color: var(--tinta-2); }
@@ -270,6 +278,7 @@ th.num button { justify-content: flex-end; }
     <div class="pestanas" role="tablist" aria-label="Secciones">
       <button class="pestana" role="tab" id="pestana-catedras" aria-controls="vista-catedras" aria-selected="true">Cátedras y aulas</button>
       <button class="pestana" role="tab" id="pestana-universidades" aria-controls="vista-universidades" aria-selected="false">Universidades</button>
+      <button class="pestana" role="tab" id="pestana-normativa" aria-controls="vista-normativa" aria-selected="false">Normativa</button>
       <button class="pestana" role="tab" id="pestana-cambios" aria-controls="vista-cambios" aria-selected="false">Cambios</button>
     </div>
     <div class="cabecera-fin">
@@ -362,6 +371,39 @@ th.num button { justify-content: flex-end; }
     </div>
   </div>
 
+<div class="vista-universidades" id="vista-normativa" role="tabpanel" aria-labelledby="pestana-normativa" hidden>
+    <h2>Normativa</h2>
+    <p>La norma de cada universidad sobre sus cátedras, con enlace al documento oficial. «No localizada» no significa que no exista: puede no estar publicada o no haberse encontrado. Esta lista se revisó el 8 de noviembre de 2026 y no se actualiza con el botón, así que una norma nueva no aparecerá sola.</p>
+    <div class="filtros-uni">
+      <label class="campo-uni campo-uni-busca">Buscar
+        <input id="nor-busqueda" type="search" placeholder="Universidad o norma" autocomplete="off">
+      </label>
+      <label class="campo-uni">Comunidad
+        <select id="nor-comunidad"></select>
+      </label>
+      <label class="campo-uni">Titularidad
+        <select id="nor-titularidad"><option value="">Todas</option><option>Pública</option><option>Privada</option></select>
+      </label>
+      <label class="campo-uni">Estado
+        <select id="nor-estado"><option value="">Todos</option><option>Encontrada</option><option>Existe, sin enlace directo</option><option>No localizada</option></select>
+      </label>
+      <div class="filtros-uni-fin">
+        <div class="recuento" id="nor-recuento" role="status"></div>
+        <button class="boton-texto" id="nor-quitar" type="button" hidden>Quitar filtros</button>
+      </div>
+    </div>
+    <div class="marco-tabla" id="marco-nor">
+      <table class="tabla-uni">
+        <thead><tr id="cabeza-nor"></tr></thead>
+        <tbody id="cuerpo-normativa"></tbody>
+      </table>
+    </div>
+    <div class="vacio" id="nor-vacio" hidden>
+      <h3>Ninguna norma coincide</h3>
+      <p>Prueba con otra búsqueda o quita los filtros.</p>
+    </div>
+  </div>
+
 <div class="vista-universidades" id="vista-cambios" role="tabpanel" aria-labelledby="pestana-cambios" hidden>
     <h2>Cambios</h2>
     <p>Lo que ha cambiado en las webs de las universidades entre una actualización y la siguiente. Una cátedra que deja de aparecer se marca como posible baja y solo se confirma si sigue sin estar en una actualización de otro día.</p>
@@ -410,6 +452,7 @@ const COLUMNAS = [
   ["tipo", "Tipo", "col-tipo"],
   ["entidad_colaboradora", "Entidad colaboradora", "col-entidad"],
   ["director", "Dirección", "col-director"],
+  ["email", "Email", "col-email"],
   ["campus_centro", "Campus o centro", "col-centro"],
 ];
 
@@ -500,6 +543,7 @@ function entrar(contenido) {
     f._oculto = palabras([f.descripcion, f.observaciones, f.email].join(" "));
     f._orden = {};
     f._compartida = /Interuniversitaria|Menciona a/.test(f.observaciones || "");
+    f.email_propio = Boolean(f.email) && f.email_tipo !== "Genérico";
   }
   $("#entrada").hidden = true;
   $("#aplicacion").hidden = false;
@@ -510,6 +554,7 @@ function entrar(contenido) {
     COLUMNAS.map(([c, t, cl]) => `<th class="${cl}" data-col="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("");
   pintarUniversidades();
   pintarCambios();
+  pintarNormativa();
   pintar();
   iniciarActualizacion();
   $("#busqueda").focus();
@@ -599,7 +644,7 @@ function pintarFiltros() {
     .sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
   const nombres = Object.fromEntries(unis.map((u) => [u.universidad, u.nombre_completo]));
   opciones($("#f-universidad"), "universidad", unis.map((u) => u.universidad), (v) => nombres[v]);
-  const solo = [["entidad_colaboradora", "Entidad colaboradora"], ["director", "Dirección"], ["web", "Web"], ["email", "Email"], ["compartida", "Posiblemente compartida entre universidades"]];
+  const solo = [["entidad_colaboradora", "Entidad colaboradora"], ["director", "Dirección"], ["web", "Web"], ["email", "Email"], ["email_propio", "Email propio, no genérico"], ["compartida", "Posiblemente compartida entre universidades"]];
   const contar = (s) => datos.catedras.filter((f) => pasa(f, "solo") && (s === "compartida" ? f._compartida : f[s])).length;
   $("#f-solo").innerHTML = solo.map(([v, t]) => `<label class="opcion"><input type="checkbox" data-campo="solo" value="${v}" ${estado.solo.has(v) ? "checked" : ""}><span class="opcion-texto">${t}</span><span class="opcion-num">${contar(v)}</span></label>`).join("");
 }
@@ -607,7 +652,7 @@ function pintarFiltros() {
 function pintarChips() {
   const chips = [];
   const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.universidad]));
-  const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", compartida: "Compartidas" };
+  const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", email_propio: "Con email propio", compartida: "Compartidas" };
   for (const v of estado.tipo) chips.push(["tipo", v, v === "Aula" ? "Aulas" : "Cátedras"]);
   for (const v of estado.comunidad) chips.push(["comunidad", v, v]);
   for (const v of estado.universidad) chips.push(["universidad", v, nombreUni[v]]);
@@ -655,6 +700,7 @@ function pintar() {
       <td class="col-tipo">${esc(f.tipo)}</td>
       <td class="col-entidad${f.entidad_colaboradora ? "" : " vacia"}" data-etiqueta="Entidad">${f.entidad_colaboradora ? marcar(f.entidad_colaboradora) : celdaVacia}</td>
       <td class="col-director${f.director ? "" : " vacia"}" data-etiqueta="Dirección">${f.director ? marcar(f.director) : celdaVacia}</td>
+      <td class="col-email${f.email ? "" : " vacia"}" data-etiqueta="Email">${f.email ? enlacesEmail(f) : celdaVacia}</td>
       <td class="col-centro${f.campus_centro ? "" : " vacia"}" data-etiqueta="Campus o centro">${f.campus_centro ? marcar(f.campus_centro) : celdaVacia}</td>
     </tr>`;
     return fila + (abierta ? detalle(f) : "");
@@ -673,15 +719,22 @@ function pintar() {
   pintarAviso([...new Set(filas.map((f) => f.universidad))]);
 }
 
+function enlacesEmail(f) {
+  const enlaces = (f.email || "").split(" / ").map((e) => e.trim()).filter(Boolean).map((e) =>
+    /^[^\s@<>"']+@[^\s@<>"']+$/.test(e) ? `<a href="mailto:${esc(e)}">${esc(e)}</a>` : esc(e));
+  return enlaces.join("") + (f.email_tipo === "Genérico" ? '<span class="email-generico">Genérico, no de la cátedra</span>' : "");
+}
+
 function detalle(f) {
   const web = enlaceSeguro(f.web), origen = enlaceSeguro(f.url_origen);
   const lineas = [];
   lineas.push(["Universidad", esc(f.nombre_universidad)]);
-  if (f.email) lineas.push(["Email", esc(f.email)]);
+  if (f.email) lineas.push(["Email", enlacesEmail(f)]);
+  if (f.campus_centro) lineas.push(["Campus o centro", esc(f.campus_centro)]);
   if (web) lineas.push(["Web", `<a href="${esc(web)}" target="_blank" rel="noopener noreferrer">${esc(web)}</a>`]);
   if (f.observaciones) lineas.push(["Observaciones", marcar(f.observaciones)]);
   if (origen) lineas.push(["Fuente", `<a href="${esc(origen)}" target="_blank" rel="noopener noreferrer">Listado de la universidad</a>`]);
-  return `<tr class="detalle"><td colspan="7">
+  return `<tr class="detalle"><td colspan="8">
     ${f.descripcion ? `<p class="detalle-texto">${marcar(f.descripcion)}</p>` : ""}
     <dl class="datos">${lineas.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>
   </td></tr>`;
@@ -767,7 +820,7 @@ function pintarFilasUniversidades() {
 
 /* ---------- Interacción ---------- */
 function mostrarVista(cual) {
-  for (const v of ["catedras", "universidades", "cambios"]) {
+  for (const v of ["catedras", "universidades", "normativa", "cambios"]) {
     $("#vista-" + v).hidden = v !== cual;
     $("#pestana-" + v).setAttribute("aria-selected", v === cual);
   }
@@ -775,7 +828,71 @@ function mostrarVista(cual) {
 }
 $("#pestana-catedras").addEventListener("click", () => mostrarVista("catedras"));
 $("#pestana-universidades").addEventListener("click", () => mostrarVista("universidades"));
+$("#pestana-normativa").addEventListener("click", () => mostrarVista("normativa"));
 $("#pestana-cambios").addEventListener("click", () => mostrarVista("cambios"));
+
+/* ---------- Normativa ---------- */
+const COLUMNAS_NOR = [["universidad", "Universidad"], ["comunidad", "Comunidad"], ["titularidad", "Titularidad"], ["norma", "Norma"], ["anio", "Año"], ["estado", "Estado"]];
+const CLASE_NOR = { "Encontrada": "estado-ok", "Existe, sin enlace directo": "estado-aviso", "No localizada": "estado-sin" };
+const ordenNor = { col: "universidad", sentido: 1 };
+function pintarNormativa() {
+  $("#cabeza-nor").innerHTML = COLUMNAS_NOR.map(([c, t]) => `<th data-col-uni="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("") + "<th>Notas</th>";
+  const cuenta = new Map();
+  const unis = new Map((datos.normativa || []).map((n) => [n.universidad, n.comunidad]));
+  for (const c of unis.values()) cuenta.set(c, (cuenta.get(c) || 0) + 1);
+  $("#nor-comunidad").innerHTML = '<option value="">Todas</option>' + [...cuenta].sort((a, b) => comparar(a[0], b[0])).map(([c, n]) => `<option value="${esc(c)}">${esc(c)} (${n})</option>`).join("");
+  pintarFilasNormativa();
+}
+function pintarFilasNormativa() {
+  const lista = datos.normativa || [];
+  const q = norm($("#nor-busqueda").value.trim());
+  const tit = $("#nor-titularidad").value, est = $("#nor-estado").value, com = $("#nor-comunidad").value;
+  const { col, sentido } = ordenNor;
+  const filas = lista
+    .filter((n) => (!q || norm(`${n.universidad} ${n.siglas} ${n.norma}`).includes(q)) && (!tit || n.titularidad === tit) && (!est || n.estado === est) && (!com || n.comunidad === com))
+    .sort((a, b) => {
+      if (!a[col] && b[col]) return 1;
+      if (a[col] && !b[col]) return -1;
+      return sentido * comparar(a[col] || "", b[col] || "") || comparar(a.universidad, b.universidad);
+    });
+  document.querySelectorAll("#cabeza-nor th[data-col-uni]").forEach((th) => {
+    if (th.dataset.colUni === col) th.setAttribute("aria-sort", sentido > 0 ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  });
+  $("#nor-recuento").innerHTML = filas.length === lista.length ? `${lista.length} <span>filas</span>` : `${filas.length} <span>de ${lista.length}</span>`;
+  $("#nor-quitar").hidden = !(q || tit || est || com);
+  $("#marco-nor").hidden = filas.length === 0;
+  $("#nor-vacio").hidden = filas.length > 0;
+  $("#cuerpo-normativa").innerHTML = filas.map((n) => {
+    const url = enlaceSeguro(n.url);
+    const texto = esc(n.norma) || '<span class="vacio-dato">—</span>';
+    return `<tr>
+      <td><strong>${esc(n.universidad)}</strong>${n.siglas ? ` (${esc(n.siglas)})` : ""}</td>
+      <td>${esc(n.comunidad)}</td>
+      <td>${esc(n.titularidad)}</td>
+      <td>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${texto}</a>` : texto}</td>
+      <td>${esc(n.anio)}</td>
+      <td><span class="estado ${CLASE_NOR[n.estado] || ""}">${esc(n.estado)}</span></td>
+      <td>${esc(n.notas)}</td>
+    </tr>`;
+  }).join("");
+}
+$("#cabeza-nor").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-col-uni]");
+  if (!th) return;
+  if (ordenNor.col === th.dataset.colUni) ordenNor.sentido *= -1;
+  else { ordenNor.col = th.dataset.colUni; ordenNor.sentido = 1; }
+  pintarFilasNormativa();
+});
+$("#nor-busqueda").addEventListener("input", pintarFilasNormativa);
+$("#nor-comunidad").addEventListener("change", pintarFilasNormativa);
+$("#nor-titularidad").addEventListener("change", pintarFilasNormativa);
+$("#nor-estado").addEventListener("change", pintarFilasNormativa);
+$("#nor-quitar").addEventListener("click", () => {
+  $("#nor-busqueda").value = ""; $("#nor-comunidad").value = ""; $("#nor-titularidad").value = ""; $("#nor-estado").value = "";
+  pintarFilasNormativa();
+  $("#nor-busqueda").focus();
+});
 
 let temporizador;
 $("#busqueda").addEventListener("input", (e) => {
