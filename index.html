@@ -202,6 +202,7 @@ dialog p { margin: 0 0 0.6rem; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th.num button { justify-content: flex-end; }
 .tabla-uni th, .tabla-cambios th { padding: 0.55rem 0.65rem; }
+.tabla-uni th[data-col-uni] { padding: 0; }
 .tabla-uni td p { margin: 0 0 0.25rem; max-width: 70ch; }
 .tabla-uni td p:last-child { margin-bottom: 0; }
 .filtros-uni { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem 1rem; margin-bottom: 1rem; }
@@ -351,7 +352,7 @@ th.num button { justify-content: flex-end; }
     </div>
     <div class="marco-tabla" id="marco-uni">
       <table class="tabla-uni">
-        <thead><tr><th>Universidad</th><th>Comunidad</th><th class="num">Registros</th><th>Estado</th><th>Notas</th></tr></thead>
+        <thead><tr id="cabeza-uni"></tr></thead>
         <tbody id="cuerpo-universidades"></tbody>
       </table>
     </div>
@@ -688,6 +689,17 @@ function detalle(f) {
 
 const TEXTO_ESTADO = { OK: "Sin incidencias", AVISO: "Con aviso", "SIN LISTADO": "Sin listado", ERROR: "No actualizada" };
 let avisosUni = new Map();
+const COLUMNAS_UNI = [["universidad", "Universidad", ""], ["comunidad", "Comunidad", ""], ["registros", "Registros", "num"], ["estado", "Estado", ""]];
+const ordenUni = { col: "universidad", sentido: 1 };
+const textoEstado = (u) => TEXTO_ESTADO[u.estado] || u.estado || "";
+function compararUni(a, b) {
+  const { col, sentido } = ordenUni;
+  const r = col === "registros" ? Number(a.n_registros) - Number(b.n_registros)
+    : col === "comunidad" ? comparar(a.comunidad, b.comunidad)
+    : col === "estado" ? comparar(textoEstado(a), textoEstado(b))
+    : 0;
+  return sentido * r || (col === "universidad" ? sentido : 1) * comparar(a.nombre_completo, b.nombre_completo);
+}
 
 function pintarUniversidades() {
   const avisos = new Map();
@@ -698,6 +710,7 @@ function pintarUniversidades() {
   const conDatos = datos.universidades.filter((u) => Number(u.n_registros) > 0).length;
   $("#explica-universidades").textContent = `Hay datos de ${conDatos} de las ${datos.universidades.length} universidades públicas. Cada universidad publica sus cátedras a su manera: «Con aviso» indica algo que conviene tener en cuenta, sobre todo que su lista puede no estar completa.`;
   avisosUni = avisos;
+  $("#cabeza-uni").innerHTML = COLUMNAS_UNI.map(([c, t, cl]) => `<th class="${cl}" data-col-uni="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("") + "<th>Notas</th>";
   const contar = (campo) => {
     const n = new Map();
     for (const u of datos.universidades) n.set(u[campo], (n.get(u[campo]) || 0) + 1);
@@ -727,7 +740,11 @@ function pintarFilasUniversidades() {
     .filter((u) => (!q || norm(`${u.nombre_completo} ${u.universidad}`).includes(q))
       && (!comunidad || u.comunidad === comunidad)
       && (!estadoUni || u.estado === estadoUni))
-    .sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
+    .sort(compararUni);
+  document.querySelectorAll("#cabeza-uni th[data-col-uni]").forEach((th) => {
+    if (th.dataset.colUni === ordenUni.col) th.setAttribute("aria-sort", ordenUni.sentido > 0 ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  });
   const total = datos.universidades.length;
   $("#uni-recuento").innerHTML = unis.length === total
     ? `${total} <span>universidades</span>`
@@ -807,6 +824,14 @@ $("#cuerpo-catedras").addEventListener("click", (e) => {
   pintar();
   window.scrollTo(0, pos);
   document.querySelector(`.abrir[data-id="${CSS.escape(id)}"]`)?.focus();
+});
+$("#cabeza-uni").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-col-uni]");
+  if (!th) return;
+  const col = th.dataset.colUni;
+  if (ordenUni.col === col) ordenUni.sentido *= -1;
+  else { ordenUni.col = col; ordenUni.sentido = col === "registros" ? -1 : 1; }
+  pintarFilasUniversidades();
 });
 $("#uni-busqueda").addEventListener("input", pintarFilasUniversidades);
 $("#uni-comunidad").addEventListener("change", pintarFilasUniversidades);
