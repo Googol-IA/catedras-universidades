@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://api.github.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Directorio de cátedras</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --fondo: oklch(98.2% 0.006 85);
+  --panel: oklch(95.6% 0.009 85);
+  --superficie: oklch(99.4% 0.003 85);
+  --tinta: oklch(25% 0.025 255);
+  --tinta-2: oklch(44% 0.022 255);
+  --linea: oklch(88% 0.012 85);
+  --linea-fuerte: oklch(76% 0.015 85);
+  --acento: oklch(40% 0.105 245);
+  --acento-hover: oklch(33% 0.105 245);
+  --acento-suave: oklch(93% 0.028 245);
+  --sobre-acento: oklch(99% 0.003 245);
+  --marca: oklch(90% 0.11 95);
+  --aviso-fondo: oklch(94% 0.05 80);
+  --aviso-tinta: oklch(38% 0.09 65);
+  --error: oklch(46% 0.16 27);
+  --ok-tinta: oklch(40% 0.09 155);
+  --sombra: 0 1px 2px oklch(25% 0.02 255 / 0.08), 0 6px 18px oklch(25% 0.02 255 / 0.07);
+  --letra: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --titulo: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fondo: oklch(20% 0.012 255);
+    --panel: oklch(23.5% 0.014 255);
+    --superficie: oklch(25.5% 0.015 255);
+    --tinta: oklch(93% 0.008 85);
+    --tinta-2: oklch(76% 0.012 255);
+    --linea: oklch(34% 0.015 255);
+    --linea-fuerte: oklch(46% 0.018 255);
+    --acento: oklch(78% 0.09 245);
+    --acento-hover: oklch(85% 0.08 245);
+    --acento-suave: oklch(32% 0.05 245);
+    --sobre-acento: oklch(20% 0.03 245);
+    --marca: oklch(48% 0.09 95);
+    --aviso-fondo: oklch(32% 0.05 75);
+    --aviso-tinta: oklch(88% 0.08 85);
+    --error: oklch(76% 0.13 27);
+    --ok-tinta: oklch(80% 0.1 155);
+    --sombra: 0 1px 2px oklch(0% 0 0 / 0.4), 0 8px 22px oklch(0% 0 0 / 0.3);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 400 0.9375rem/1.45 var(--letra); }
+::selection { background: var(--acento); color: var(--sobre-acento); }
+a { color: var(--acento); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--acento-hover); text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; border-radius: 3px; }
+[hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+svg { display: block; }
+mark { background: var(--marca); color: inherit; border-radius: 2px; padding: 0 1px; }
+* { scrollbar-color: var(--linea-fuerte) transparent; scrollbar-width: thin; }
+
+.oculto-accesible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.boton { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.5rem; padding: 0 0.95rem; border-radius: 6px; border: 1px solid var(--linea-fuerte); background: var(--superficie); font-weight: 550; white-space: nowrap; transition: background 160ms ease-out, border-color 160ms ease-out; }
+.boton:hover { background: var(--panel); border-color: var(--tinta-2); }
+.boton-primario { background: var(--acento); border-color: var(--acento); color: var(--sobre-acento); }
+.boton-primario:hover { background: var(--acento-hover); border-color: var(--acento-hover); }
+.boton[disabled] { opacity: 0.6; cursor: progress; }
+.boton-texto { border: 0; background: none; padding: 0.15rem 0; color: var(--acento); text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+.boton-texto:hover { color: var(--acento-hover); text-decoration-thickness: 2px; }
+
+/* Entrada con contraseña */
+.entrada { min-height: 100dvh; display: grid; place-items: center; padding: 1rem; }
+.entrada form { width: min(25rem, 100%); }
+.entrada h1 { font: 600 2rem/1.15 var(--titulo); margin: 0 0 0.5rem; text-wrap: balance; }
+.entrada p { color: var(--tinta-2); margin: 0 0 1.75rem; }
+.campo-etiqueta { display: block; font-weight: 550; margin-bottom: 0.35rem; }
+.entrada input[type="password"] { width: 100%; height: 2.875rem; padding: 0 0.8rem; border: 1px solid var(--linea-fuerte); border-radius: 6px; background: var(--superficie); }
+.recordar { display: flex; align-items: center; gap: 0.5rem; margin: 0.85rem 0 1.15rem; cursor: pointer; }
+.recordar input, .opcion input { accent-color: var(--acento); width: 1rem; height: 1rem; margin: 0; flex: none; }
+.entrada .boton { width: 100%; justify-content: center; min-height: 2.875rem; }
+.entrada-error { color: var(--error); margin: 0.85rem 0 0; font-weight: 550; min-height: 1.45em; }
+
+/* Marco de la aplicación */
+.cabecera { display: flex; align-items: center; gap: 1.5rem; padding: 0.7rem 1.25rem; background: var(--superficie); border-bottom: 1px solid var(--linea); position: sticky; top: 0; z-index: 5; }
+.cabecera h1 { font: 600 1.25rem/1.2 var(--titulo); margin: 0; white-space: nowrap; }
+.pestanas { display: flex; gap: 0.25rem; }
+.pestana { border: 0; background: none; padding: 0.45rem 0.7rem; border-radius: 6px; font-weight: 550; color: var(--tinta-2); transition: background 160ms ease-out, color 160ms ease-out; }
+.pestana:hover { background: var(--panel); color: var(--tinta); }
+.pestana[aria-selected="true"] { background: var(--acento-suave); color: var(--acento-hover); }
+.cabecera-fin { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+.fecha { color: var(--tinta-2); font-size: 0.8125rem; white-space: nowrap; }
+
+.vista-catedras { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); align-items: start; }
+.filtros { position: sticky; top: 3.5rem; height: calc(100dvh - 3.5rem); overflow-y: auto; padding: 1.1rem 1.1rem 2rem; background: var(--panel); border-right: 1px solid var(--linea); }
+.filtros-cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
+.filtros h2 { font-size: 0.9375rem; margin: 0; font-weight: 650; }
+.grupo { border: 0; padding: 0; margin: 1.15rem 0 0; min-width: 0; }
+.grupo legend { padding: 0; font-weight: 650; margin-bottom: 0.3rem; font-size: 0.875rem; }
+.lista-opciones { max-height: 14.5rem; overflow-y: auto; margin-right: -0.4rem; padding-right: 0.4rem; }
+.opcion { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.22rem 0; cursor: pointer; font-size: 0.875rem; line-height: 1.3; }
+.opcion input { margin-top: 0.13rem; }
+.opcion:hover .opcion-texto { color: var(--acento-hover); }
+.opcion-num { margin-left: auto; color: var(--tinta-2); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+.opcion.apagada .opcion-texto { color: var(--tinta-2); }
+.filtrar-universidad { width: 100%; height: 2.125rem; padding: 0 0.55rem; margin-bottom: 0.35rem; border: 1px solid var(--linea-fuerte); border-radius: 5px; background: var(--superficie); font-size: 0.875rem; }
+
+.contenido { padding: 1.1rem 1.25rem 3rem; min-width: 0; }
+.buscador { position: relative; }
+.buscador svg { position: absolute; left: 0.85rem; top: 50%; translate: 0 -50%; color: var(--tinta-2); pointer-events: none; }
+.buscador input { width: 100%; height: 3rem; padding: 0 2.6rem 0 2.6rem; font-size: 1.0625rem; border: 1px solid var(--linea-fuerte); border-radius: 8px; background: var(--superficie); }
+.buscador input::placeholder { color: var(--tinta-2); opacity: 1; }
+.limpiar-busqueda { position: absolute; right: 0.4rem; top: 50%; translate: 0 -50%; width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border: 0; background: none; border-radius: 5px; color: var(--tinta-2); }
+.limpiar-busqueda:hover { background: var(--panel); color: var(--tinta); }
+.barra { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 0.85rem 0; }
+.recuento { font-weight: 650; font-variant-numeric: tabular-nums; }
+.recuento span { font-weight: 400; color: var(--tinta-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chip { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 1.75rem; padding: 0 0.5rem; border: 1px solid transparent; border-radius: 4px; background: var(--acento-suave); color: var(--acento-hover); font-size: 0.8125rem; font-weight: 550; }
+.chip:hover { border-color: var(--acento); }
+.barra-fin { margin-left: auto; display: flex; gap: 0.5rem; }
+.boton-filtros { display: none; }
+.aviso-uni { background: var(--aviso-fondo); color: var(--aviso-tinta); padding: 0.6rem 0.8rem; border-radius: 6px; margin-bottom: 0.85rem; font-size: 0.875rem; }
+.aviso-uni p { margin: 0; }
+.aviso-uni p + p { margin-top: 0.3rem; }
+
+.marco-tabla { border: 1px solid var(--linea); border-radius: 8px; background: var(--superficie); }
+table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+th { position: sticky; top: 3.4rem; z-index: 1; background: var(--panel); text-align: left; font-weight: 650; border-bottom: 1px solid var(--linea-fuerte); padding: 0; white-space: nowrap; }
+th button { width: 100%; display: flex; align-items: center; gap: 0.3rem; border: 0; background: none; padding: 0.55rem 0.65rem; font-weight: 650; text-align: left; }
+th button:hover { color: var(--acento-hover); }
+th svg { opacity: 0.35; flex: none; }
+th[aria-sort="ascending"] svg, th[aria-sort="descending"] svg { opacity: 1; color: var(--acento); }
+th[aria-sort="descending"] svg { rotate: 180deg; }
+th.fija { padding: 0.55rem 0.3rem; width: 2.25rem; }
+td { padding: 0.55rem 0.65rem; border-bottom: 1px solid var(--linea); vertical-align: top; overflow-wrap: anywhere; }
+tbody tr.fila:hover td { background: color-mix(in oklch, var(--panel) 55%, transparent); }
+tr.fila.abierta td { border-bottom-color: transparent; background: color-mix(in oklch, var(--panel) 55%, transparent); }
+.col-uni { font-weight: 650; white-space: nowrap; overflow-wrap: normal; }
+.col-nombre { min-width: 17rem; width: 34%; }
+.col-tipo { white-space: nowrap; overflow-wrap: normal; }
+.col-entidad { min-width: 10rem; width: 20%; }
+.col-director { min-width: 9rem; width: 15%; }
+.col-centro { min-width: 8rem; width: 13%; color: var(--tinta-2); }
+.abrir { width: 1.75rem; height: 1.75rem; display: grid; place-items: center; border: 0; border-radius: 4px; background: none; color: var(--tinta-2); margin: -0.2rem 0 -0.2rem -0.1rem; }
+.abrir:hover { background: var(--acento-suave); color: var(--acento-hover); }
+.abrir svg { transition: rotate 160ms ease-out; }
+.abrir[aria-expanded="true"] svg { rotate: 90deg; }
+.nombre { font-weight: 550; }
+.etiqueta-aula { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--aviso-tinta); background: var(--aviso-fondo); padding: 0 0.35rem; border-radius: 3px; }
+.fragmento { color: var(--tinta-2); font-size: 0.8125rem; margin-top: 0.2rem; }
+.compartida { display: block; color: var(--tinta-2); font-size: 0.8125rem; margin-top: 0.15rem; }
+.vacio-dato { color: var(--tinta-2); opacity: 0.55; }
+tr.detalle td { padding: 0.15rem 0.65rem 1rem 2.95rem; background: color-mix(in oklch, var(--panel) 55%, transparent); }
+.detalle-texto { max-width: 75ch; margin: 0 0 0.6rem; line-height: 1.5; }
+dl.datos { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.2rem 0.85rem; margin: 0; font-size: 0.8125rem; }
+dl.datos dt { color: var(--tinta-2); }
+dl.datos dd { margin: 0; overflow-wrap: anywhere; }
+
+.vacio { padding: 3rem 1.25rem; text-align: center; }
+.vacio h3 { margin: 0 0 0.35rem; font-size: 1.0625rem; }
+.vacio p { margin: 0 0 0.9rem; color: var(--tinta-2); }
+
+/* Vista de universidades */
+.vista-universidades { padding: 1.25rem; max-width: 78rem; margin: 0 auto; }
+.vista-universidades h2 { font: 600 1.5rem/1.2 var(--titulo); margin: 0 0 0.35rem; }
+.vista-universidades > p { color: var(--tinta-2); margin: 0 0 1.1rem; max-width: 75ch; }
+.estado { font-weight: 600; font-size: 0.8125rem; white-space: nowrap; }
+.estado-ok { color: var(--ok-tinta); }
+.estado-aviso { color: var(--aviso-tinta); }
+.estado-sin { color: var(--tinta-2); }
+.estado-error { color: var(--error); }
+.estado-act { color: var(--tinta-2); font-size: 0.8125rem; max-width: 26rem; text-align: right; }
+.estado-act.problema { color: var(--error); font-weight: 550; }
+.estado-act .boton-texto { font-size: inherit; margin-left: 0.35rem; }
+.boton-cab { min-height: 2.25rem; }
+dialog { border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 1.4rem 1.5rem; width: min(30rem, calc(100vw - 2rem)); background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra); }
+dialog::backdrop { background: oklch(25% 0.02 255 / 0.45); }
+dialog h2 { font: 600 1.375rem/1.2 var(--titulo); margin: 0 0 0.6rem; }
+dialog p { margin: 0 0 0.6rem; }
+.tiempo { font-size: 1.0625rem; font-weight: 600; }
+.dialogo-botones { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.1rem; }
+.ajuste { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.85rem 1rem; margin-bottom: 1.1rem; background: var(--panel); border-radius: 8px; max-width: 46rem; cursor: pointer; }
+.ajuste input { appearance: none; flex: none; width: 2.4rem; height: 1.35rem; margin: 0.05rem 0 0; border-radius: 1rem; background: var(--linea-fuerte); position: relative; cursor: pointer; transition: background 160ms ease-out; }
+.ajuste input::after { content: ""; position: absolute; top: 0.15rem; left: 0.15rem; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--superficie); box-shadow: 0 1px 2px oklch(25% 0.02 255 / 0.3); transition: translate 160ms ease-out; }
+.ajuste input:checked { background: var(--acento); }
+.ajuste input:checked::after { translate: 1.05rem 0; }
+.ajuste input:disabled { opacity: 0.55; cursor: progress; }
+.ajuste strong { display: block; font-weight: 600; }
+.ajuste span span { color: var(--tinta-2); font-size: 0.875rem; }
+.tipo-cambio { font-weight: 600; white-space: nowrap; }
+.cambio-alta { color: var(--ok-tinta); }
+.cambio-baja { color: var(--error); }
+.cambio-aviso { color: var(--aviso-tinta); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+th.num button { justify-content: flex-end; }
+.tabla-uni th, .tabla-cambios th { padding: 0.55rem 0.65rem; }
+.tabla-uni td p { margin: 0 0 0.25rem; max-width: 70ch; }
+.tabla-uni td p:last-child { margin-bottom: 0; }
+
+.etiqueta-aula { display: none; }
+@media (max-width: 1100px) { .col-centro { display: none; } .fecha { display: none; } .marco-tabla { overflow-x: auto; } th { top: 0; } }
+@media (max-width: 860px) {
+  .cabecera { flex-wrap: wrap; gap: 0.35rem 0.75rem; padding: 0.55rem 0.9rem; position: static; }
+  .cabecera h1 { font-size: 1.125rem; }
+  .pestanas { order: 3; width: 100%; }
+  .vista-catedras { display: block; }
+  .filtros { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--linea); padding: 0.9rem; }
+  .boton-filtros { display: inline-flex; }
+  .contenido { padding: 0.9rem; }
+  .filtros:not(.abiertos) { display: none; }
+  .barra-fin { margin-left: 0; width: 100%; }
+  .barra-fin .boton { flex: 1; justify-content: center; }
+  .marco-tabla { border: 0; background: none; overflow: visible; }
+  .tabla-catedras thead { display: none; }
+  .tabla-catedras, .tabla-catedras tbody { display: block; }
+  .tabla-catedras tr.fila { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 0 0.35rem; padding: 0.7rem 0.6rem; background: var(--superficie); border: 1px solid var(--linea); border-radius: 8px 8px 8px 8px; margin-top: 0.5rem; }
+  .tabla-catedras tr.fila.abierta { border-bottom: 0; border-radius: 8px 8px 0 0; }
+  .tabla-catedras td { display: block; padding: 0; border: 0; width: auto; min-width: 0; background: none !important; }
+  .tabla-catedras td:first-child { grid-row: span 5; align-self: start; }
+  .etiqueta-aula { display: inline-block; }
+  .tabla-catedras td.col-nombre { order: -1; grid-column: 2; }
+  .tabla-catedras td.col-uni, .tabla-catedras td.col-entidad, .tabla-catedras td.col-director, .tabla-catedras td.col-centro { grid-column: 2; font-size: 0.8125rem; margin-top: 0.15rem; }
+  .tabla-catedras td.col-tipo { display: none; }
+  .tabla-catedras td.col-entidad:empty, .tabla-catedras td.col-director:empty, .tabla-catedras td.vacia { display: none; }
+  .tabla-catedras td[data-etiqueta]::before { content: attr(data-etiqueta) ": "; color: var(--tinta-2); }
+  .tabla-catedras tr.detalle { display: block; }
+  .tabla-catedras tr.detalle td { padding: 0 0.6rem 0.8rem 2.7rem; background: var(--superficie) !important; border: 1px solid var(--linea); border-top: 0; border-radius: 0 0 8px 8px; }
+  .vista-universidades { padding: 0.9rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main class="entrada" id="entrada">
+  <form id="formulario" autocomplete="on">
+    <h1>Directorio de cátedras</h1>
+    <p>Cátedras y aulas de las universidades públicas españolas. Escribe la contraseña para consultarlo.</p>
+    <input type="text" name="username" value="catedras" autocomplete="username" hidden>
+    <label class="campo-etiqueta" for="contrasena">Contraseña</label>
+    <input type="password" id="contrasena" autocomplete="current-password" required autofocus>
+    <label class="recordar"><input type="checkbox" id="recordar"> Recordar en este dispositivo</label>
+    <button class="boton boton-primario" type="submit" id="abrir">Entrar</button>
+    <p class="entrada-error" id="error-entrada" role="alert"></p>
+  </form>
+</main>
+
+<div id="aplicacion" hidden>
+  <header class="cabecera">
+    <h1>Directorio de cátedras</h1>
+    <div class="pestanas" role="tablist" aria-label="Secciones">
+      <button class="pestana" role="tab" id="pestana-catedras" aria-controls="vista-catedras" aria-selected="true">Cátedras y aulas</button>
+      <button class="pestana" role="tab" id="pestana-universidades" aria-controls="vista-universidades" aria-selected="false">Universidades</button>
+      <button class="pestana" role="tab" id="pestana-cambios" aria-controls="vista-cambios" aria-selected="false">Cambios</button>
+    </div>
+    <div class="cabecera-fin">
+      <span class="fecha" id="fecha"></span>
+      <span class="estado-act" id="estado-act" role="status" hidden></span>
+      <button class="boton boton-primario boton-cab" id="actualizar" type="button" hidden>Actualizar datos</button>
+      <button class="boton-texto" id="salir" type="button">Salir</button>
+    </div>
+  </header>
+
+  <div class="vista-catedras" id="vista-catedras" role="tabpanel" aria-labelledby="pestana-catedras">
+    <aside class="filtros" id="filtros" aria-label="Filtros">
+      <div class="filtros-cabecera">
+        <h2>Filtrar</h2>
+        <button class="boton-texto" id="quitar-filtros" type="button" hidden>Quitar filtros</button>
+      </div>
+      <fieldset class="grupo"><legend>Tipo</legend><div id="f-tipo"></div></fieldset>
+      <fieldset class="grupo"><legend>Comunidad</legend><div class="lista-opciones" id="f-comunidad"></div></fieldset>
+      <fieldset class="grupo"><legend>Universidad</legend>
+        <label class="oculto-accesible" for="buscar-uni">Buscar universidad en la lista</label>
+        <input class="filtrar-universidad" id="buscar-uni" type="search" placeholder="Buscar universidad">
+        <div class="lista-opciones" id="f-universidad"></div>
+      </fieldset>
+      <fieldset class="grupo"><legend>Solo las que tienen</legend><div id="f-solo"></div></fieldset>
+    </aside>
+
+    <section class="contenido" aria-label="Resultados">
+      <div class="buscador">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+        <label class="oculto-accesible" for="busqueda">Buscar por tema, empresa o persona</label>
+        <input id="busqueda" type="search" placeholder="Busca un tema, una empresa o una persona" autocomplete="off">
+        <button class="limpiar-busqueda" id="limpiar-busqueda" type="button" aria-label="Borrar la búsqueda" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="barra">
+        <div class="recuento" id="recuento" role="status"></div>
+        <div class="chips" id="chips"></div>
+        <div class="barra-fin">
+          <button class="boton boton-filtros" id="ver-filtros" type="button" aria-expanded="false" aria-controls="filtros">Filtros</button>
+          <button class="boton" id="descargar" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14"/></svg>
+            Descargar Excel completo
+          </button>
+        </div>
+      </div>
+      <div class="aviso-uni" id="aviso-uni" hidden></div>
+      <div class="marco-tabla">
+        <table class="tabla-catedras">
+          <thead><tr id="cabeza-catedras"></tr></thead>
+          <tbody id="cuerpo-catedras"></tbody>
+        </table>
+        <div class="vacio" id="vacio" hidden>
+          <h3>No hay resultados con esta búsqueda</h3>
+          <p>Prueba con menos palabras o quita algún filtro.</p>
+          <button class="boton" id="vacio-limpiar" type="button">Quitar búsqueda y filtros</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="vista-universidades" id="vista-universidades" role="tabpanel" aria-labelledby="pestana-universidades" hidden>
+    <h2>Universidades</h2>
+    <p id="explica-universidades"></p>
+    <div class="marco-tabla">
+      <table class="tabla-uni">
+        <thead><tr><th>Universidad</th><th>Comunidad</th><th class="num">Registros</th><th>Estado</th><th>Notas</th></tr></thead>
+        <tbody id="cuerpo-universidades"></tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="vista-universidades" id="vista-cambios" role="tabpanel" aria-labelledby="pestana-cambios" hidden>
+    <h2>Cambios</h2>
+    <p>Lo que ha cambiado en las webs de las universidades entre una actualización y la siguiente. Una cátedra que deja de aparecer se marca como posible baja y solo se confirma si sigue sin estar en una actualización de otro día.</p>
+    <label class="ajuste" id="caja-mensual" hidden>
+      <input type="checkbox" role="switch" id="mensual">
+      <span><strong>Actualizar automáticamente el día 1 de cada mes</strong><span id="mensual-texto"></span></span>
+    </label>
+    <div class="marco-tabla" id="marco-cambios">
+      <table class="tabla-cambios">
+        <thead><tr><th>Fecha</th><th>Universidad</th><th>Cátedra o aula</th><th>Cambio</th><th>Detalle</th></tr></thead>
+        <tbody id="cuerpo-cambios"></tbody>
+      </table>
+    </div>
+    <div class="vacio" id="sin-cambios" hidden>
+      <h3>Todavía no hay cambios</h3>
+      <p>Aparecerán aquí después de cada actualización, si los hay.</p>
+    </div>
+  </div>
+</div>
+
+<dialog id="dialogo-actualizar" aria-labelledby="dialogo-titulo">
+  <h2 id="dialogo-titulo">Actualizar los datos</h2>
+  <p class="tiempo" id="dialogo-tiempo"></p>
+  <p>Se revisan de nuevo las webs de todas las universidades. Mientras tanto puedes seguir consultando la página o cerrarla: la actualización continúa sola y, al volver, verás los datos nuevos.</p>
+  <div class="dialogo-botones">
+    <button class="boton" id="dialogo-no" type="button">Ahora no</button>
+    <button class="boton boton-primario" id="dialogo-si" type="button">Empezar a actualizar</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+const VERSION = "__VERSION__";
+const CLAVE_GUARDADA = "catedras-clave";
+const $ = (s) => document.querySelector(s);
+const FLECHA = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m0 0-6 6m6-6 6 6"/></svg>';
+const CHEVRON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+const COLUMNAS = [
+  ["universidad", "Universidad", "col-uni"],
+  ["nombre", "Nombre", "col-nombre"],
+  ["tipo", "Tipo", "col-tipo"],
+  ["entidad_colaboradora", "Entidad colaboradora", "col-entidad"],
+  ["director", "Dirección", "col-director"],
+  ["campus_centro", "Campus o centro", "col-centro"],
+];
+
+let datos = null;
+const estado = { q: "", comunidad: new Set(), universidad: new Set(), tipo: new Set(), solo: new Set(), orden: "universidad", sentido: 1, abiertas: new Set(), buscarUni: "" };
+const comparar = new Intl.Collator("es", { sensitivity: "base", numeric: true }).compare;
+
+/* ---------- Cifrado: JSON → gzip → AES-256-GCM, clave PBKDF2-SHA256 ---------- */
+const deBase64 = (t) => Uint8Array.from(atob(t), (c) => c.charCodeAt(0));
+const aBase64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
+
+async function derivar(contrasena, sal, iteraciones) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(contrasena), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: sal, iterations: iteraciones },
+    base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
+}
+async function descifrar(paquete, clave) {
+  const plano = await crypto.subtle.decrypt({ name: "AES-GCM", iv: deBase64(paquete.iv) }, clave, deBase64(paquete.datos));
+  const flujo = new Blob([plano]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return JSON.parse(await new Response(flujo).text());
+}
+async function traerPaquete() {
+  const r = await fetch("datos.enc.json?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("descarga");
+  const paquete = await r.json();
+  // Si el navegador guardaba una página antigua, se recarga la nueva una sola vez.
+  if (paquete.version && paquete.version !== VERSION && !location.search.includes(paquete.version)) {
+    location.replace("?v=" + encodeURIComponent(paquete.version));
+    await new Promise(() => {});
+  }
+  return paquete;
+}
+function leerGuardada() { try { return localStorage.getItem(CLAVE_GUARDADA); } catch { return null; } }
+function guardar(valor) { try { localStorage.setItem(CLAVE_GUARDADA, valor); } catch { /* sin almacenamiento: se pedirá otra vez */ } }
+function olvidar() { try { localStorage.removeItem(CLAVE_GUARDADA); } catch { /* nada que olvidar */ } }
+
+async function arrancar() {
+  if (!window.crypto?.subtle || !window.DecompressionStream) {
+    $("#error-entrada").textContent = "Este navegador es demasiado antiguo para abrir el directorio. Actualízalo o prueba con otro.";
+    $("#abrir").disabled = true;
+    return;
+  }
+  const guardada = leerGuardada();
+  if (!guardada) return;
+  try {
+    const paquete = await traerPaquete();
+    const clave = await crypto.subtle.importKey("raw", deBase64(guardada), "AES-GCM", true, ["decrypt"]);
+    entrar(await descifrar(paquete, clave));
+  } catch { olvidar(); }
+}
+
+$("#formulario").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const error = $("#error-entrada"), boton = $("#abrir");
+  error.textContent = "";
+  boton.disabled = true;
+  boton.textContent = "Abriendo…";
+  try {
+    const paquete = await traerPaquete();
+    const clave = await derivar($("#contrasena").value, deBase64(paquete.sal), paquete.iteraciones);
+    let contenido;
+    try { contenido = await descifrar(paquete, clave); }
+    catch { error.textContent = "La contraseña no es correcta. Revísala y vuelve a probar."; $("#contrasena").select(); return; }
+    if ($("#recordar").checked) guardar(aBase64(await crypto.subtle.exportKey("raw", clave)));
+    entrar(contenido);
+  } catch {
+    error.textContent = "No se han podido descargar los datos. Comprueba la conexión y vuelve a probar.";
+  } finally {
+    boton.disabled = false;
+    boton.textContent = "Entrar";
+  }
+});
+$("#salir").addEventListener("click", () => { olvidar(); location.reload(); });
+
+/* ---------- Preparación ---------- */
+const norm = (t) => (t || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const enlaceSeguro = (u) => /^https?:\/\//i.test(u || "") ? u : null;
+
+function entrar(contenido) {
+  datos = contenido;
+  const comunidad = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.comunidad]));
+  const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.nombre_completo]));
+  for (const f of datos.catedras) {
+    f.comunidad = comunidad[f.universidad] || "";
+    f.nombre_universidad = nombreUni[f.universidad] || "";
+    f._visible = palabras([f.universidad, f.nombre_universidad, f.nombre, f.entidad_colaboradora, f.director, f.campus_centro, f.comunidad].join(" "));
+    f._oculto = palabras([f.descripcion, f.observaciones, f.email].join(" "));
+    f._orden = {};
+    f._compartida = /Interuniversitaria|Menciona a/.test(f.observaciones || "");
+  }
+  $("#entrada").hidden = true;
+  $("#aplicacion").hidden = false;
+  $("#fecha").textContent = "Datos del " + new Date(datos.fecha + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  $("#cabeza-catedras").innerHTML = '<th class="fija"><span class="oculto-accesible">Abrir detalle</span></th>' +
+    COLUMNAS.map(([c, t, cl]) => `<th class="${cl}" data-col="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("");
+  pintarUniversidades();
+  pintarCambios();
+  pintar();
+  iniciarActualizacion();
+  $("#busqueda").focus();
+}
+
+/* ---------- Filtrado ---------- */
+const terminos = () => norm(estado.q).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+/* Busca por inicio de palabra: «agua» encuentra «Aguas», pero no «salvaguarda». */
+const palabras = (t) => " " + norm(t).replace(/[^\p{L}\p{N}]+/gu, " ");
+const contiene = (texto, x) => texto.includes(" " + x);
+function pasa(f, ignorar) {
+  if (ignorar !== "tipo" && estado.tipo.size && !estado.tipo.has(f.tipo)) return false;
+  if (ignorar !== "comunidad" && estado.comunidad.size && !estado.comunidad.has(f.comunidad)) return false;
+  if (ignorar !== "universidad" && estado.universidad.size && !estado.universidad.has(f.universidad)) return false;
+  if (ignorar !== "solo") {
+    for (const s of estado.solo) {
+      if (s === "compartida" ? !f._compartida : !f[s]) return false;
+    }
+  }
+  const t = terminos();
+  return t.every((x) => contiene(f._visible, x) || contiene(f._oculto, x));
+}
+
+function marcar(texto) {
+  if (!texto) return "";
+  const t = terminos();
+  if (!t.length) return esc(texto);
+  let plano = "";
+  const mapa = [];
+  for (let i = 0; i < texto.length; i++) {
+    for (const c of norm(texto[i])) { plano += c; mapa.push(i); }
+  }
+  const tramos = [];
+  for (const x of t) {
+    let p = plano.indexOf(x);
+    while (p >= 0) {
+      if (p === 0 || !/[\p{L}\p{N}]/u.test(plano[p - 1])) tramos.push([mapa[p], mapa[p + x.length - 1] + 1]);
+      p = plano.indexOf(x, p + x.length);
+    }
+  }
+  if (!tramos.length) return esc(texto);
+  tramos.sort((a, b) => a[0] - b[0]);
+  let salida = "", pos = 0;
+  for (const [a, b] of tramos) {
+    if (a < pos) continue;
+    salida += esc(texto.slice(pos, a)) + "<mark>" + esc(texto.slice(a, b)) + "</mark>";
+    pos = b;
+  }
+  return salida + esc(texto.slice(pos));
+}
+
+function fragmento(f) {
+  const t = terminos();
+  if (!t.length) return "";
+  const falta = t.find((x) => !contiene(f._visible, x));
+  if (!falta || !f.descripcion || !contiene(palabras(f.descripcion), falta)) return "";
+  const n = norm(f.descripcion);
+  let p = n.indexOf(falta);
+  while (p > 0 && /[\p{L}\p{N}]/u.test(n[p - 1])) p = n.indexOf(falta, p + 1);
+  if (p < 0) return "";
+  const ini = Math.max(0, p - 60), fin = Math.min(f.descripcion.length, p + 90);
+  return `<div class="fragmento">${ini ? "…" : ""}${marcar(f.descripcion.slice(ini, fin))}${fin < f.descripcion.length ? "…" : ""}</div>`;
+}
+
+function opciones(destino, campo, valores, etiqueta) {
+  const elegidos = estado[campo];
+  const cuenta = new Map();
+  for (const f of datos.catedras) {
+    if (!pasa(f, campo)) continue;
+    const v = f[campo === "universidad" ? "universidad" : campo];
+    cuenta.set(v, (cuenta.get(v) || 0) + 1);
+  }
+  destino.innerHTML = valores.map((v) => {
+    const n = cuenta.get(v) || 0;
+    return `<label class="opcion${n ? "" : " apagada"}"><input type="checkbox" data-campo="${campo}" value="${esc(v)}" ${elegidos.has(v) ? "checked" : ""}><span class="opcion-texto">${esc(etiqueta ? etiqueta(v) : v)}</span><span class="opcion-num">${n}</span></label>`;
+  }).join("");
+}
+
+function pintarFiltros() {
+  opciones($("#f-tipo"), "tipo", ["Cátedra", "Aula"], (v) => v === "Aula" ? "Aulas" : "Cátedras");
+  const comunidades = [...new Set(datos.universidades.map((u) => u.comunidad))].sort(comparar);
+  opciones($("#f-comunidad"), "comunidad", comunidades);
+  const busca = norm(estado.buscarUni);
+  const unis = datos.universidades
+    .filter((u) => !estado.comunidad.size || estado.comunidad.has(u.comunidad) || estado.universidad.has(u.universidad))
+    .filter((u) => !busca || norm(u.universidad + " " + u.nombre_completo).includes(busca) || estado.universidad.has(u.universidad))
+    .sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
+  const nombres = Object.fromEntries(unis.map((u) => [u.universidad, u.nombre_completo]));
+  opciones($("#f-universidad"), "universidad", unis.map((u) => u.universidad), (v) => nombres[v]);
+  const solo = [["entidad_colaboradora", "Entidad colaboradora"], ["director", "Dirección"], ["web", "Web"], ["email", "Email"], ["compartida", "Posiblemente compartida entre universidades"]];
+  const contar = (s) => datos.catedras.filter((f) => pasa(f, "solo") && (s === "compartida" ? f._compartida : f[s])).length;
+  $("#f-solo").innerHTML = solo.map(([v, t]) => `<label class="opcion"><input type="checkbox" data-campo="solo" value="${v}" ${estado.solo.has(v) ? "checked" : ""}><span class="opcion-texto">${t}</span><span class="opcion-num">${contar(v)}</span></label>`).join("");
+}
+
+function pintarChips() {
+  const chips = [];
+  const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.universidad]));
+  const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", compartida: "Compartidas" };
+  for (const v of estado.tipo) chips.push(["tipo", v, v === "Aula" ? "Aulas" : "Cátedras"]);
+  for (const v of estado.comunidad) chips.push(["comunidad", v, v]);
+  for (const v of estado.universidad) chips.push(["universidad", v, nombreUni[v]]);
+  for (const v of estado.solo) chips.push(["solo", v, textoSolo[v]]);
+  const cruz = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  $("#chips").innerHTML = chips.map(([c, v, t]) => `<button class="chip" type="button" data-campo="${c}" data-valor="${esc(v)}" aria-label="Quitar filtro ${esc(t)}">${esc(t)}${cruz}</button>`).join("");
+  $("#quitar-filtros").hidden = !chips.length;
+}
+
+function pintarAviso(universidades) {
+  const caja = $("#aviso-uni");
+  const unis = estado.universidad.size ? [...estado.universidad] : (universidades.length === 1 ? universidades : []);
+  const avisos = datos.errores.filter((e) => unis.includes(e.universidad));
+  caja.hidden = !avisos.length;
+  caja.innerHTML = avisos.map((e) => `<p><strong>${esc(e.universidad)}:</strong> ${esc(e.detalle)}</p>`).join("");
+}
+
+function pintar() {
+  const filas = datos.catedras.filter((f) => pasa(f));
+  const col = estado.orden, s = estado.sentido;
+  filas.sort((a, b) => {
+    const x = a[col], y = b[col];
+    if (!x && !y) return comparar(a.nombre, b.nombre);
+    if (!x) return 1;
+    if (!y) return -1;
+    return s * comparar(x, y) || comparar(a.nombre, b.nombre);
+  });
+  document.querySelectorAll("#cabeza-catedras th[data-col]").forEach((th) => {
+    if (th.dataset.col === col) th.setAttribute("aria-sort", s > 0 ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  });
+
+  const cuerpo = $("#cuerpo-catedras");
+  cuerpo.innerHTML = filas.map((f) => {
+    const id = f.clave_normalizada;
+    const abierta = estado.abiertas.has(id);
+    const web = enlaceSeguro(f.web);
+    const nombre = web ? `<a class="nombre" href="${esc(web)}" target="_blank" rel="noopener noreferrer">${marcar(f.nombre)}</a>` : `<span class="nombre">${marcar(f.nombre)}</span>`;
+    const compartida = f._compartida ? '<span class="compartida">Posiblemente compartida con otra universidad</span>' : "";
+    const celdaVacia = '<span class="vacio-dato" aria-label="No consta">—</span>';
+    const fila = `<tr class="fila${abierta ? " abierta" : ""}">
+      <td><button class="abrir" type="button" data-id="${esc(id)}" aria-expanded="${abierta}" aria-label="${abierta ? "Cerrar" : "Ver"} detalle de ${esc(f.nombre)}">${CHEVRON}</button></td>
+      <td class="col-uni" title="${esc(f.nombre_universidad)}">${marcar(f.universidad)}</td>
+      <td class="col-nombre">${nombre}${f.tipo === "Aula" ? ' <span class="etiqueta-aula">Aula</span>' : ""}${compartida}${fragmento(f)}</td>
+      <td class="col-tipo">${esc(f.tipo)}</td>
+      <td class="col-entidad${f.entidad_colaboradora ? "" : " vacia"}" data-etiqueta="Entidad">${f.entidad_colaboradora ? marcar(f.entidad_colaboradora) : celdaVacia}</td>
+      <td class="col-director${f.director ? "" : " vacia"}" data-etiqueta="Dirección">${f.director ? marcar(f.director) : celdaVacia}</td>
+      <td class="col-centro${f.campus_centro ? "" : " vacia"}" data-etiqueta="Campus o centro">${f.campus_centro ? marcar(f.campus_centro) : celdaVacia}</td>
+    </tr>`;
+    return fila + (abierta ? detalle(f) : "");
+  }).join("");
+
+  const miles = (n) => n.toLocaleString("es-ES", { useGrouping: "always" });
+  const total = datos.catedras.length;
+  $("#recuento").innerHTML = filas.length === total
+    ? `${miles(total)} <span>cátedras y aulas</span>`
+    : `${miles(filas.length)} <span>de ${miles(total)}</span>`;
+  $("#vacio").hidden = filas.length > 0;
+  document.querySelector(".tabla-catedras").hidden = filas.length === 0;
+  $("#limpiar-busqueda").hidden = !estado.q;
+  pintarFiltros();
+  pintarChips();
+  pintarAviso([...new Set(filas.map((f) => f.universidad))]);
+}
+
+function detalle(f) {
+  const web = enlaceSeguro(f.web), origen = enlaceSeguro(f.url_origen);
+  const lineas = [];
+  lineas.push(["Universidad", esc(f.nombre_universidad)]);
+  if (f.email) lineas.push(["Email", esc(f.email)]);
+  if (web) lineas.push(["Web", `<a href="${esc(web)}" target="_blank" rel="noopener noreferrer">${esc(web)}</a>`]);
+  if (f.observaciones) lineas.push(["Observaciones", marcar(f.observaciones)]);
+  if (origen) lineas.push(["Fuente", `<a href="${esc(origen)}" target="_blank" rel="noopener noreferrer">Listado de la universidad</a>`]);
+  return `<tr class="detalle"><td colspan="7">
+    ${f.descripcion ? `<p class="detalle-texto">${marcar(f.descripcion)}</p>` : ""}
+    <dl class="datos">${lineas.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>
+  </td></tr>`;
+}
+
+function pintarUniversidades() {
+  const avisos = new Map();
+  for (const e of datos.errores) {
+    if (!avisos.has(e.universidad)) avisos.set(e.universidad, []);
+    avisos.get(e.universidad).push(e.detalle);
+  }
+  const conDatos = datos.universidades.filter((u) => Number(u.n_registros) > 0).length;
+  $("#explica-universidades").textContent = `Hay datos de ${conDatos} de las ${datos.universidades.length} universidades públicas. Cada universidad publica sus cátedras a su manera: «Con aviso» indica algo que conviene tener en cuenta, sobre todo que su lista puede no estar completa.`;
+  const clase = { OK: "estado-ok", AVISO: "estado-aviso", "SIN LISTADO": "estado-sin", ERROR: "estado-error" };
+  const texto = { OK: "Sin incidencias", AVISO: "Con aviso", "SIN LISTADO": "Sin listado", ERROR: "No actualizada" };
+  const unis = [...datos.universidades].sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
+  $("#cuerpo-universidades").innerHTML = unis.map((u) => {
+    const listado = enlaceSeguro(u.url_catedras);
+    const n = Number(u.n_registros);
+    return `<tr>
+      <td><strong>${esc(u.nombre_completo)}</strong> (${esc(u.universidad)})${listado ? `<br><a href="${esc(listado)}" target="_blank" rel="noopener noreferrer">Ver su listado</a>` : ""}</td>
+      <td>${esc(u.comunidad)}</td>
+      <td class="num">${n ? `<button class="boton-texto" type="button" data-ver-uni="${esc(u.universidad)}" aria-label="Ver ${n} registros de ${esc(u.universidad)}">${n}</button>` : "0"}</td>
+      <td><span class="estado ${clase[u.estado] || ""}">${texto[u.estado] || esc(u.estado)}</span></td>
+      <td>${(avisos.get(u.universidad) || []).map((a) => `<p>${esc(a)}</p>`).join("")}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ---------- Interacción ---------- */
+function mostrarVista(cual) {
+  for (const v of ["catedras", "universidades", "cambios"]) {
+    $("#vista-" + v).hidden = v !== cual;
+    $("#pestana-" + v).setAttribute("aria-selected", v === cual);
+  }
+  window.scrollTo(0, 0);
+}
+$("#pestana-catedras").addEventListener("click", () => mostrarVista("catedras"));
+$("#pestana-universidades").addEventListener("click", () => mostrarVista("universidades"));
+$("#pestana-cambios").addEventListener("click", () => mostrarVista("cambios"));
+
+let temporizador;
+$("#busqueda").addEventListener("input", (e) => {
+  clearTimeout(temporizador);
+  temporizador = setTimeout(() => { estado.q = e.target.value; pintar(); }, 140);
+});
+$("#limpiar-busqueda").addEventListener("click", () => {
+  $("#busqueda").value = ""; estado.q = ""; pintar(); $("#busqueda").focus();
+});
+$("#buscar-uni").addEventListener("input", (e) => { estado.buscarUni = e.target.value; pintarFiltros(); });
+
+$("#filtros").addEventListener("change", (e) => {
+  const c = e.target.dataset?.campo;
+  if (!c) return;
+  if (e.target.checked) estado[c].add(e.target.value); else estado[c].delete(e.target.value);
+  const foco = [c, e.target.value];
+  pintar();
+  document.querySelector(`#filtros input[data-campo="${foco[0]}"][value="${CSS.escape(foco[1])}"]`)?.focus();
+});
+function quitarTodo() {
+  for (const c of ["tipo", "comunidad", "universidad", "solo"]) estado[c].clear();
+  pintar();
+}
+$("#quitar-filtros").addEventListener("click", quitarTodo);
+$("#vacio-limpiar").addEventListener("click", () => { $("#busqueda").value = ""; estado.q = ""; quitarTodo(); });
+$("#chips").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  estado[b.dataset.campo].delete(b.dataset.valor);
+  pintar();
+});
+$("#cabeza-catedras").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-col]");
+  if (!th) return;
+  if (estado.orden === th.dataset.col) estado.sentido *= -1;
+  else { estado.orden = th.dataset.col; estado.sentido = 1; }
+  pintar();
+  document.querySelector(`#cabeza-catedras th[data-col="${th.dataset.col}"] button`)?.focus();
+});
+$("#cuerpo-catedras").addEventListener("click", (e) => {
+  const b = e.target.closest(".abrir");
+  if (!b) return;
+  const id = b.dataset.id;
+  if (estado.abiertas.has(id)) estado.abiertas.delete(id); else estado.abiertas.add(id);
+  const pos = window.scrollY;
+  pintar();
+  window.scrollTo(0, pos);
+  document.querySelector(`.abrir[data-id="${CSS.escape(id)}"]`)?.focus();
+});
+$("#cuerpo-universidades").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-ver-uni]");
+  if (!b) return;
+  estado.universidad.clear();
+  estado.comunidad.clear();
+  estado.universidad.add(b.dataset.verUni);
+  pintar();
+  mostrarVista("catedras");
+});
+$("#ver-filtros").addEventListener("click", (e) => {
+  const abiertos = $("#filtros").classList.toggle("abiertos");
+  e.currentTarget.setAttribute("aria-expanded", abiertos);
+});
+$("#descargar").addEventListener("click", () => {
+  const bytes = deBase64(datos.excel);
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `catedras_universidades_${datos.fecha}.xlsx`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+});
+
+/* ---------- Sección de cambios ---------- */
+function pintarCambios() {
+  const lista = [...(datos.cambios || [])].reverse();
+  $("#sin-cambios").hidden = lista.length > 0;
+  $("#marco-cambios").hidden = lista.length === 0;
+  const claseCambio = { Alta: "cambio-alta", Baja: "cambio-baja", "Posible baja": "cambio-aviso", "Posible cambio de nombre": "cambio-aviso" };
+  const campos = { director: "Dirección", web: "Web", email: "Email", entidad_colaboradora: "Entidad", nombre: "Nombre" };
+  const fechaCorta = (f) => new Date(f + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
+  $("#cuerpo-cambios").innerHTML = lista.map((c) => {
+    let detalle = "";
+    if (c.campo) detalle = `${campos[c.campo] || esc(c.campo)}: ${esc(c.valor_anterior) || "(vacío)"} → ${esc(c.valor_nuevo) || "(vacío)"}`;
+    return `<tr><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.universidad)}</strong></td><td>${esc(c.nombre)}</td><td><span class="tipo-cambio ${claseCambio[c.tipo_cambio] || ""}">${esc(c.tipo_cambio)}</span></td><td>${detalle}</td></tr>`;
+  }).join("");
+}
+
+/* ---------- Actualización: el permiso llega dentro de los datos cifrados ---------- */
+const FLUJO = "actualizar.yml", FLUJO_MENSUAL = "mensual.yml";
+const MINUTOS_SI_NO_SE_SABE = 20;
+let esperando = 0, relojEstado = null;
+
+async function gh(ruta, opciones = {}) {
+  const r = await fetch(`https://api.github.com/repos/${datos.github.repo}${ruta}`, {
+    ...opciones,
+    cache: "no-store",
+    headers: { Authorization: `Bearer ${datos.github.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opciones.headers || {}) },
+  });
+  if (r.status === 401) throw new Error("caducado");
+  if (!r.ok) throw new Error("github");
+  return r;
+}
+function mostrarEstado(html, problema = false) {
+  const caja = $("#estado-act");
+  caja.hidden = !html;
+  caja.classList.toggle("problema", problema);
+  caja.innerHTML = html;
+}
+function mensajeError(e) {
+  return e.message === "caducado"
+    ? "El permiso para actualizar ha caducado. Hay que renovarlo en GitHub."
+    : "No se ha podido contactar con GitHub. Vuelve a probar en un rato.";
+}
+async function minutosEstimados() {
+  try {
+    const r = await (await gh(`/actions/workflows/${FLUJO}/runs?status=success&per_page=1`)).json();
+    const ultimo = r.workflow_runs?.[0];
+    if (ultimo) return Math.max(1, Math.ceil((new Date(ultimo.updated_at) - new Date(ultimo.run_started_at)) / 60000));
+  } catch { /* se usa la estimación */ }
+  return MINUTOS_SI_NO_SE_SABE;
+}
+async function comprobarEstado() {
+  clearTimeout(relojEstado);
+  const boton = $("#actualizar");
+  try {
+    const r = await (await gh(`/actions/workflows/${FLUJO}/runs?per_page=1`)).json();
+    const ejecucion = r.workflow_runs?.[0];
+    const reciente = ejecucion && new Date(ejecucion.created_at).getTime() >= esperando - 60000;
+    if (ejecucion && ejecucion.status !== "completed") {
+      const hace = Math.max(0, Math.round((Date.now() - new Date(ejecucion.created_at)) / 60000));
+      boton.disabled = true;
+      esperando = esperando || new Date(ejecucion.created_at).getTime();
+      mostrarEstado(hace ? `Actualizando… empezó hace ${hace} min` : "Actualizando…");
+      relojEstado = setTimeout(comprobarEstado, 30000);
+      return;
+    }
+    if (esperando && !reciente) {  // GitHub aún no ha registrado la orden
+      boton.disabled = true;
+      mostrarEstado("Poniéndose en marcha…");
+      relojEstado = setTimeout(comprobarEstado, 5000);
+      return;
+    }
+    if (esperando && ejecucion.conclusion !== "success") {
+      esperando = 0;
+      boton.disabled = false;
+      mostrarEstado("La actualización no ha terminado bien. Los datos anteriores siguen disponibles.", true);
+      return;
+    }
+    if (esperando) {
+      boton.disabled = true;
+      mostrarEstado("Publicando los datos nuevos…");
+      relojEstado = setTimeout(comprobarPublicacion, 15000);
+      return;
+    }
+    boton.disabled = false;
+    mostrarEstado("");
+  } catch (e) {
+    boton.disabled = false;
+    mostrarEstado(mensajeError(e), true);
+  }
+}
+async function comprobarPublicacion() {
+  try {
+    const r = await fetch("datos.enc.json?t=" + Date.now(), { cache: "no-store" });
+    const paquete = await r.json();
+    if (paquete.version !== VERSION) {
+      esperando = 0;
+      $("#actualizar").disabled = false;
+      mostrarEstado('Hay datos nuevos.<button class="boton-texto" id="ver-nuevos" type="button">Verlos</button>');
+      $("#ver-nuevos").addEventListener("click", () => location.replace("?v=" + encodeURIComponent(paquete.version)));
+      return;
+    }
+  } catch { /* se vuelve a probar */ }
+  relojEstado = setTimeout(comprobarPublicacion, 20000);
+}
+async function pintarMensual() {
+  const caja = $("#mensual"), texto = $("#mensual-texto");
+  try {
+    const flujo = await (await gh(`/actions/workflows/${FLUJO_MENSUAL}`)).json();
+    caja.checked = flujo.state === "active";
+    texto.textContent = caja.checked ? "Activada: se actualiza sola el día 1 de cada mes." : "Desactivada: solo se actualiza al pulsar «Actualizar datos».";
+    $("#caja-mensual").hidden = false;
+  } catch { $("#caja-mensual").hidden = true; }
+}
+function iniciarActualizacion() {
+  if (!datos.github?.token) return;
+  $("#actualizar").hidden = false;
+  comprobarEstado();
+  pintarMensual();
+}
+$("#actualizar").addEventListener("click", async () => {
+  const boton = $("#actualizar");
+  boton.disabled = true;
+  const minutos = await minutosEstimados();
+  boton.disabled = false;
+  $("#dialogo-tiempo").textContent = `Tardará unos ${minutos} minutos.`;
+  $("#dialogo-actualizar").showModal();
+});
+$("#dialogo-no").addEventListener("click", () => $("#dialogo-actualizar").close());
+$("#dialogo-si").addEventListener("click", async () => {
+  $("#dialogo-actualizar").close();
+  try {
+    await gh(`/actions/workflows/${FLUJO}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main" }), headers: { "Content-Type": "application/json" } });
+    esperando = Date.now();
+    $("#actualizar").disabled = true;
+    mostrarEstado("Poniéndose en marcha…");
+    relojEstado = setTimeout(comprobarEstado, 5000);
+  } catch (e) { mostrarEstado(mensajeError(e), true); }
+});
+$("#mensual").addEventListener("change", async (e) => {
+  const caja = e.target, activar = caja.checked;
+  caja.disabled = true;
+  try {
+    await gh(`/actions/workflows/${FLUJO_MENSUAL}/${activar ? "enable" : "disable"}`, { method: "PUT" });
+    await pintarMensual();
+  } catch (err) {
+    caja.checked = !activar;
+    $("#mensual-texto").textContent = mensajeError(err);
+  } finally { caja.disabled = false; }
+});
+
+arrancar();
+</script>
+</body>
+</html>

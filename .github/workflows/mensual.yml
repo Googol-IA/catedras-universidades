@@ -1,0 +1,15 @@
+name: Actualización mensual
+
+# Se activa o se desactiva con el interruptor de la pestaña «Cambios» de la página.
+on:
+  schedule:
+    - cron: "0 5 1 * *"
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  actualizar:
+    uses: ./.github/workflows/actualizar.yml
+    secrets: inherit

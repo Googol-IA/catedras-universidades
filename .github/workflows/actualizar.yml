@@ -1,0 +1,55 @@
+name: Actualizar
+
+on:
+  workflow_dispatch:
+    inputs:
+      solo_probar:
+        description: Solo comprobar qué webs responden, sin publicar nada
+        type: boolean
+        default: false
+  workflow_call: {}
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: actualizar
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TZ: Europe/Madrid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar programas
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Solo probar las webs
+        if: ${{ inputs.solo_probar == true }}
+        run: python src/actualizar.py --solo-probar
+      - name: Actualizar los datos
+        if: ${{ inputs.solo_probar != true }}
+        env:
+          CLAVE_CIFRADO: ${{ secrets.CLAVE_CIFRADO }}
+          SAL_CIFRADO: ${{ secrets.SAL_CIFRADO }}
+          TOKEN_BOTON: ${{ secrets.TOKEN_BOTON }}
+        run: python src/actualizar.py
+      - name: Publicar
+        if: ${{ inputs.solo_probar != true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html datos.enc.json universidades.csv
+          git commit -m "Datos actualizados"
+          git push
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds"
