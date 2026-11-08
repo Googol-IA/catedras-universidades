@@ -1,6 +1,6 @@
-requests
-beautifulsoup4
-openpyxl
-playwright
-pymupdf
-cryptography
+requests==2.34.2
+beautifulsoup4==4.15.0
+openpyxl==3.1.5
+playwright==1.64.1
+pymupdf==1.28.2
+cryptography==50.0.2
