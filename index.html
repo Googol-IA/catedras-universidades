@@ -120,6 +120,7 @@ mark { background: var(--marca); color: inherit; border-radius: 2px; padding: 0 
 .barra { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 0.85rem 0; }
 .recuento { font-weight: 650; font-variant-numeric: tabular-nums; }
 .recuento span { font-weight: 400; color: var(--tinta-2); }
+.ambito { color: var(--tinta-2); font-size: 0.8125rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .chip { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 1.75rem; padding: 0 0.5rem; border: 1px solid transparent; border-radius: 4px; background: var(--acento-suave); color: var(--acento-hover); font-size: 0.8125rem; font-weight: 550; }
 .chip:hover { border-color: var(--acento); }
@@ -294,6 +295,7 @@ th.num button { justify-content: flex-end; }
       </div>
       <div class="barra">
         <div class="recuento" id="recuento" role="status"></div>
+        <div class="ambito" id="ambito"></div>
         <div class="chips" id="chips"></div>
         <div class="barra-fin">
           <button class="boton boton-filtros" id="ver-filtros" type="button" aria-expanded="false" aria-controls="filtros">Filtros</button>
@@ -332,7 +334,10 @@ th.num button { justify-content: flex-end; }
 <div class="vista-universidades" id="vista-cambios" role="tabpanel" aria-labelledby="pestana-cambios" hidden>
     <h2>Cambios</h2>
     <p>Lo que ha cambiado en las webs de las universidades entre una actualización y la siguiente. Una cátedra que deja de aparecer se marca como posible baja y solo se confirma si sigue sin estar en una actualización de otro día.</p>
-    <div class="aviso-uni"><p><strong>UB e UIB:</strong> el botón no las renueva, porque bloquean a GitHub. Sus datos pueden irse quedando antiguos, y por eso salen como no actualizadas.</p></div>
+    <div class="aviso-uni">
+      <p><strong>UB:</strong> el botón no la renueva, porque bloquea a GitHub. Sus datos pueden irse quedando antiguos, y por eso sale como «No actualizada».</p>
+      <p><strong>UIB y ULL:</strong> unas veces responden a GitHub y otras no. Cuando fallan conservan los datos anteriores y salen como «No actualizada» hasta la siguiente actualización.</p>
+    </div>
     <label class="ajuste" id="caja-mensual" hidden>
       <input type="checkbox" role="switch" id="mensual">
       <span><strong>Actualizar automáticamente el día 1 de cada mes</strong><span id="mensual-texto"></span></span>
@@ -467,6 +472,8 @@ function entrar(contenido) {
   $("#entrada").hidden = true;
   $("#aplicacion").hidden = false;
   $("#fecha").textContent = "Datos del " + new Date(datos.fecha + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  const unisConDatos = datos.universidades.filter((u) => Number(u.n_registros) > 0).length;
+  $("#ambito").textContent = `${datos.universidades.length} universidades revisadas, ${unisConDatos} con datos`;
   $("#cabeza-catedras").innerHTML = '<th class="fija"><span class="oculto-accesible">Abrir detalle</span></th>' +
     COLUMNAS.map(([c, t, cl]) => `<th class="${cl}" data-col="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("");
   pintarUniversidades();
