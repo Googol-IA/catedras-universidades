@@ -3,6 +3,7 @@
 La búsqueda a fondo se hace UNA VEZ, en el ordenador, para todas las cátedras:
     python src/emails.py                    busca (si se corta, sigue donde iba) y clasifica
     python src/emails.py --sin-navegador    igual, sin la segunda pasada con navegador real
+    python src/emails.py --solo-clasificar  reaplica las reglas a lo ya visto, sin volver a las webs
 Guarda en data/emails/: crudo.json (lo visto en cada web) y resultado.json (lo asignado).
 Se publica con herramientas/publicar_emails.py.
 
@@ -48,14 +49,18 @@ TIEMPO_MAXIMO = 20
 
 EMAIL = re.compile(r"(?<![\w.+-])[a-z0-9][a-z0-9._%+-]*\s?(?:@|\(at\)|\[at\]|\(arroba\)|\[arroba\])\s?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,10}(?![\w-])", re.I)
 EXTENSIONES = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".css", ".js", ".woff", ".woff2", ".ttf", ".ico", ".map", ".html", ".php")
-DOMINIOS_FALSOS = ("example.", "ejemplo.", "domain.", "dominio.", "sentry", "wixpress.", "email.com", "correo.com", "tudominio.", "yourdomain.")
+DOMINIOS_FALSOS = ("example.", "ejemplo.", "domain.", "dominio.", "sentry", "wixpress.", "email.com", "correo.com", "tudominio.", "yourdomain.",
+                   "misitio.", "mi-sitio.", "sitio.com", "tuempresa.", "empresa.com")
+NOMBRES_FALSOS = re.compile(r"^(ejemplo|example|tunombre|nombre|usuario|user|tuemail|tucorreo|correo|email|yourname)@", re.I)
+RESTOS_DELANTE = re.compile(r"^(?:20|22|92|0{2,}|u00[0-9a-f]{2})(?=[a-z])")  # códigos de la web pegados a la dirección
 INSTITUCIONAL = re.compile(
-    r"^(info|informacion|informacio|information|infouniversidad|comunicacion|comunicacio|prensa|gabinete|rector|rectora|rectorado|"
+    r"^(info|informacion|informacio|information|infouniversidad|comunicacion|comunicacio|prensa|premsa|gabinete|"
     r"secretaria|secretariageneral|atencion|contacto|contact|investigacion|investigacio)(\d*)@", re.I)
 # Existen, pero no sirven para contactar con una cátedra: ni siquiera como genéricas.
 INUTIL = re.compile(
     r"^(webmaster|web|admin|administrador|administracion|noreply|no-reply|donotreply|registro|registre|rgpd|lopd|dpo|dpd|"
-    r"protecciondatos|protecciondedatos|proteccion\.datos|privacidad|privacy|sugerencias|cau|soporte|support|ayuda|abuse|postmaster)(\d*)@", re.I)
+    r"protecciondatos|protecciondedatos|proteccion\.datos|privacidad|privacy|sugerencias|cau|soporte|support|ayuda|abuse|postmaster|"
+    r"rector|rectora|rectorado|rectorat|gerencia|alumni|alumniub|carreres\.professionals|adj\.cienciaoberta|ed\.direccio)(\d*)@", re.I)
 TEXTO_CONTACTO = re.compile(r"contact|contacte|kontakt|harremanet|qui[eé]nes\s+somos|qui\s+som|equipo|equip\b", re.I)
 _ULTIMA = collections.defaultdict(float)
 _CERROJOS = collections.defaultdict(threading.Lock)
@@ -82,10 +87,24 @@ def correos_de(html):
     hallados = set()
     for parte in partes:
         for bruto in EMAIL.findall(parte):
-            x = _normalizar(bruto)
-            if "@" in x and not x.endswith(EXTENSIONES) and not any(d in x.split("@")[1] for d in DOMINIOS_FALSOS):
+            x = limpiar_direccion(_normalizar(bruto))
+            if x:
                 hallados.add(x)
     return hallados, sopa
+
+
+def limpiar_direccion(x):
+    """Quita restos pegados delante y descarta lo que no es una dirección real. Devuelve None si no vale."""
+    x = RESTOS_DELANTE.sub("", x)
+    if "@" not in x or x.endswith(EXTENSIONES) or NOMBRES_FALSOS.match(x) or any(d in x.split("@")[1] for d in DOMINIOS_FALSOS):
+        return None
+    return x
+
+
+def _mismo_dominio(direccion, *webs):
+    """El dominio de una dirección coincide con el de alguna de esas webs (basta con la raíz)."""
+    raiz = lambda h: ".".join(h.lower().split(".")[-2:])  # noqa: E731
+    return any(raiz(direccion.split("@")[1]) == raiz(urlparse(w).netloc) for w in webs if w)
 
 
 def pedir(url):
@@ -134,6 +153,15 @@ class Navegador:
 
 
 def visitar(url, pedir_pagina=pedir):
+    """Como _visitar, pero una página defectuosa nunca detiene el proceso: cuenta como no abierta."""
+    try:
+        return _visitar(url, pedir_pagina)
+    except Exception as e:
+        print(f"Página con problemas, se omite ({type(e).__name__}): {url}", flush=True)
+        return {"abierta": False, "web": [], "contacto": []}
+
+
+def _visitar(url, pedir_pagina):
     """Lee la web de la cátedra y sus páginas de contacto. Devuelve lo visto en cada sitio."""
     html = pedir_pagina(url)
     if html is None:
@@ -142,8 +170,11 @@ def visitar(url, pedir_pagina=pedir):
     en_contacto = set()
     host, vistos = urlparse(url).netloc, {url.split("#")[0]}
     for a in sopa.find_all("a", href=True):
-        destino = urljoin(url, a["href"]).split("#")[0]
-        if destino in vistos or urlparse(destino).netloc != host:
+        try:
+            destino = urljoin(url, a["href"]).split("#")[0]
+            if destino in vistos or urlparse(destino).netloc != host:
+                continue
+        except ValueError:  # enlace mal escrito en la propia web
             continue
         if TEXTO_CONTACTO.search(a.get_text(" ", strip=True)[:40]) or re.search(r"contact", urlparse(destino).path, re.I):
             vistos.add(destino)
@@ -183,19 +214,26 @@ def genericos_de(filas, crudo):
     return res
 
 
-def elegir(visto, genericos_uni):
-    """A partir de lo visto en una web, devuelve (email, tipo). Vacío si no hay nada útil."""
+def elegir(visto, genericos_uni, webs=()):
+    """A partir de lo visto en una web, devuelve (email, tipo). Vacío si no hay nada útil.
+
+    `webs` son la de la cátedra y la de su listado: un genérico de otro dominio no sirve de reserva.
+    """
     def clasificar(lista):
-        utiles = [e for e in lista if not INUTIL.match(e)]
-        propios = [e for e in utiles if e not in genericos_uni and not INSTITUCIONAL.match(e)]
-        return propios, [e for e in utiles if e not in propios]
+        limpias = sorted({x for x in (limpiar_direccion(e) for e in lista) if x and not INUTIL.match(x)})
+        propios = [e for e in limpias if e not in genericos_uni and not INSTITUCIONAL.match(e)]
+        return propios, [e for e in limpias if e not in propios]
+
+    def utiles_primero(lista):
+        cercanas = [e for e in lista if not webs or _mismo_dominio(e, *webs)]
+        return sorted(cercanas, key=lambda e: (not re.match(r"c[aà]tedr|gestioncatedr|mecenazgo", e), not e.startswith("info"), e))
 
     propios_web, genericos_web = clasificar(visto["web"])
     propios_con, genericos_con = clasificar(visto["contacto"])
     propios = propios_web or propios_con
     if propios and len(propios) <= MAXIMO_POR_PAGINA:
         return SEPARADOR.join(propios), TIPO_WEB
-    reserva = genericos_web or genericos_con
+    reserva = utiles_primero(genericos_web) or utiles_primero(genericos_con)
     if reserva:
         return SEPARADOR.join(reserva[:MAXIMO_GENERICOS]), TIPO_GENERICO
     return None, None
@@ -227,7 +265,7 @@ def aplicar(nuevas, previas, genericos):
             visto = visitar(f["web"])
             if not visto["web"] and not visto["contacto"]:
                 visto = visitar(f["web"], navegador)
-            f["email"], f["email_tipo"] = elegir(visto, set(genericos.get(f["universidad"], [])))
+            f["email"], f["email_tipo"] = elegir(visto, set(genericos.get(f["universidad"], [])), (f.get("web"), f.get("url_origen")))
             encontrados += bool(f["email"])
     finally:
         navegador.cerrar()
@@ -306,7 +344,7 @@ def clasificar_todo(filas, crudo):
     for f in filas:
         visto = crudo.get(f["clave_normalizada"])
         if visto and not f.get("email"):
-            email, tipo = elegir(visto, genericos.get(f["universidad"], set()))
+            email, tipo = elegir(visto, genericos.get(f["universidad"], set()), (f.get("web"), f.get("url_origen")))
             if email:
                 asignados[f["clave_normalizada"]] = {"email": email, "email_tipo": tipo}
     return asignados, {u: sorted(v) for u, v in genericos.items()}
@@ -315,7 +353,10 @@ def clasificar_todo(filas, crudo):
 def main():
     inicio = time.time()
     filas = _cargar_filas()
-    crudo = busqueda_a_fondo(filas, "--sin-navegador" not in sys.argv)
+    if "--solo-clasificar" in sys.argv:  # reaplica las reglas a lo ya visto, sin volver a las webs
+        crudo = json.loads((CARPETA / "crudo.json").read_text(encoding="utf-8"))
+    else:
+        crudo = busqueda_a_fondo(filas, "--sin-navegador" not in sys.argv)
     asignados, genericos = clasificar_todo(filas, crudo)
     (CARPETA / "resultado.json").write_text(json.dumps(
         {"fecha": datetime.date.today().isoformat(), "asignados": asignados, "genericos": genericos},
