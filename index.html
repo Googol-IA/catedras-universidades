@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://api.github.com; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Directorio de cátedras</title>
 <style>
@@ -174,9 +174,32 @@ dl.datos dd { margin: 0; overflow-wrap: anywhere; }
 .estado-ok { color: var(--ok-tinta); }
 .estado-aviso { color: var(--aviso-tinta); }
 .estado-sin { color: var(--tinta-2); }
+.estado-error { color: var(--error); }
+.estado-act { color: var(--tinta-2); font-size: 0.8125rem; max-width: 26rem; text-align: right; }
+.estado-act.problema { color: var(--error); font-weight: 550; }
+.estado-act .boton-texto { font-size: inherit; margin-left: 0.35rem; }
+.boton-cab { min-height: 2.25rem; }
+dialog { border: 1px solid var(--linea-fuerte); border-radius: 10px; padding: 1.4rem 1.5rem; width: min(30rem, calc(100vw - 2rem)); background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra); }
+dialog::backdrop { background: oklch(25% 0.02 255 / 0.45); }
+dialog h2 { font: 600 1.375rem/1.2 var(--titulo); margin: 0 0 0.6rem; }
+dialog p { margin: 0 0 0.6rem; }
+.tiempo { font-size: 1.0625rem; font-weight: 600; }
+.dialogo-botones { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.1rem; }
+.ajuste { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.85rem 1rem; margin-bottom: 1.1rem; background: var(--panel); border-radius: 8px; max-width: 46rem; cursor: pointer; }
+.ajuste input { appearance: none; flex: none; width: 2.4rem; height: 1.35rem; margin: 0.05rem 0 0; border-radius: 1rem; background: var(--linea-fuerte); position: relative; cursor: pointer; transition: background 160ms ease-out; }
+.ajuste input::after { content: ""; position: absolute; top: 0.15rem; left: 0.15rem; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--superficie); box-shadow: 0 1px 2px oklch(25% 0.02 255 / 0.3); transition: translate 160ms ease-out; }
+.ajuste input:checked { background: var(--acento); }
+.ajuste input:checked::after { translate: 1.05rem 0; }
+.ajuste input:disabled { opacity: 0.55; cursor: progress; }
+.ajuste strong { display: block; font-weight: 600; }
+.ajuste span span { color: var(--tinta-2); font-size: 0.875rem; }
+.tipo-cambio { font-weight: 600; white-space: nowrap; }
+.cambio-alta { color: var(--ok-tinta); }
+.cambio-baja { color: var(--error); }
+.cambio-aviso { color: var(--aviso-tinta); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th.num button { justify-content: flex-end; }
-.tabla-uni th { padding: 0.55rem 0.65rem; }
+.tabla-uni th, .tabla-cambios th { padding: 0.55rem 0.65rem; }
 .tabla-uni td p { margin: 0 0 0.25rem; max-width: 70ch; }
 .tabla-uni td p:last-child { margin-bottom: 0; }
 
@@ -234,9 +257,12 @@ th.num button { justify-content: flex-end; }
     <div class="pestanas" role="tablist" aria-label="Secciones">
       <button class="pestana" role="tab" id="pestana-catedras" aria-controls="vista-catedras" aria-selected="true">Cátedras y aulas</button>
       <button class="pestana" role="tab" id="pestana-universidades" aria-controls="vista-universidades" aria-selected="false">Universidades</button>
+      <button class="pestana" role="tab" id="pestana-cambios" aria-controls="vista-cambios" aria-selected="false">Cambios</button>
     </div>
     <div class="cabecera-fin">
       <span class="fecha" id="fecha"></span>
+      <span class="estado-act" id="estado-act" role="status" hidden></span>
+      <button class="boton boton-primario boton-cab" id="actualizar" type="button" hidden>Actualizar datos</button>
       <button class="boton-texto" id="salir" type="button">Salir</button>
     </div>
   </header>
@@ -302,11 +328,40 @@ th.num button { justify-content: flex-end; }
       </table>
     </div>
   </div>
+
+<div class="vista-universidades" id="vista-cambios" role="tabpanel" aria-labelledby="pestana-cambios" hidden>
+    <h2>Cambios</h2>
+    <p>Lo que ha cambiado en las webs de las universidades entre una actualización y la siguiente. Una cátedra que deja de aparecer se marca como posible baja y solo se confirma si sigue sin estar en una actualización de otro día.</p>
+    <label class="ajuste" id="caja-mensual" hidden>
+      <input type="checkbox" role="switch" id="mensual">
+      <span><strong>Actualizar automáticamente el día 1 de cada mes</strong><span id="mensual-texto"></span></span>
+    </label>
+    <div class="marco-tabla" id="marco-cambios">
+      <table class="tabla-cambios">
+        <thead><tr><th>Fecha</th><th>Universidad</th><th>Cátedra o aula</th><th>Cambio</th><th>Detalle</th></tr></thead>
+        <tbody id="cuerpo-cambios"></tbody>
+      </table>
+    </div>
+    <div class="vacio" id="sin-cambios" hidden>
+      <h3>Todavía no hay cambios</h3>
+      <p>Aparecerán aquí después de cada actualización, si los hay.</p>
+    </div>
+  </div>
 </div>
+
+<dialog id="dialogo-actualizar" aria-labelledby="dialogo-titulo">
+  <h2 id="dialogo-titulo">Actualizar los datos</h2>
+  <p class="tiempo" id="dialogo-tiempo"></p>
+  <p>Se revisan de nuevo las webs de todas las universidades. Mientras tanto puedes seguir consultando la página o cerrarla: la actualización continúa sola y, al volver, verás los datos nuevos.</p>
+  <div class="dialogo-botones">
+    <button class="boton" id="dialogo-no" type="button">Ahora no</button>
+    <button class="boton boton-primario" id="dialogo-si" type="button">Empezar a actualizar</button>
+  </div>
+</dialog>
 
 <script>
 "use strict";
-const VERSION = "2026-11-08-VZ119X_u";
+const VERSION = "2026-11-08-JCzbslHm";
 const CLAVE_GUARDADA = "catedras-clave";
 const $ = (s) => document.querySelector(s);
 const FLECHA = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m0 0-6 6m6-6 6 6"/></svg>';
@@ -339,9 +394,15 @@ async function descifrar(paquete, clave) {
   return JSON.parse(await new Response(flujo).text());
 }
 async function traerPaquete() {
-  const r = await fetch("datos.enc.json?v=" + encodeURIComponent(VERSION), { cache: "no-store" });
+  const r = await fetch("datos.enc.json?t=" + Date.now(), { cache: "no-store" });
   if (!r.ok) throw new Error("descarga");
-  return r.json();
+  const paquete = await r.json();
+  // Si el navegador guardaba una página antigua, se recarga la nueva una sola vez.
+  if (paquete.version && paquete.version !== VERSION && !location.search.includes(paquete.version)) {
+    location.replace("?v=" + encodeURIComponent(paquete.version));
+    await new Promise(() => {});
+  }
+  return paquete;
 }
 function leerGuardada() { try { return localStorage.getItem(CLAVE_GUARDADA); } catch { return null; } }
 function guardar(valor) { try { localStorage.setItem(CLAVE_GUARDADA, valor); } catch { /* sin almacenamiento: se pedirá otra vez */ } }
@@ -408,7 +469,9 @@ function entrar(contenido) {
   $("#cabeza-catedras").innerHTML = '<th class="fija"><span class="oculto-accesible">Abrir detalle</span></th>' +
     COLUMNAS.map(([c, t, cl]) => `<th class="${cl}" data-col="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("");
   pintarUniversidades();
+  pintarCambios();
   pintar();
+  iniciarActualizacion();
   $("#busqueda").focus();
 }
 
@@ -592,8 +655,8 @@ function pintarUniversidades() {
   }
   const conDatos = datos.universidades.filter((u) => Number(u.n_registros) > 0).length;
   $("#explica-universidades").textContent = `Hay datos de ${conDatos} de las ${datos.universidades.length} universidades públicas. Cada universidad publica sus cátedras a su manera: «Con aviso» indica algo que conviene tener en cuenta, sobre todo que su lista puede no estar completa.`;
-  const clase = { OK: "estado-ok", AVISO: "estado-aviso", "SIN LISTADO": "estado-sin" };
-  const texto = { OK: "Sin incidencias", AVISO: "Con aviso", "SIN LISTADO": "Sin listado" };
+  const clase = { OK: "estado-ok", AVISO: "estado-aviso", "SIN LISTADO": "estado-sin", ERROR: "estado-error" };
+  const texto = { OK: "Sin incidencias", AVISO: "Con aviso", "SIN LISTADO": "Sin listado", ERROR: "No actualizada" };
   const unis = [...datos.universidades].sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
   $("#cuerpo-universidades").innerHTML = unis.map((u) => {
     const listado = enlaceSeguro(u.url_catedras);
@@ -610,15 +673,15 @@ function pintarUniversidades() {
 
 /* ---------- Interacción ---------- */
 function mostrarVista(cual) {
-  const cat = cual === "catedras";
-  $("#vista-catedras").hidden = !cat;
-  $("#vista-universidades").hidden = cat;
-  $("#pestana-catedras").setAttribute("aria-selected", cat);
-  $("#pestana-universidades").setAttribute("aria-selected", !cat);
+  for (const v of ["catedras", "universidades", "cambios"]) {
+    $("#vista-" + v).hidden = v !== cual;
+    $("#pestana-" + v).setAttribute("aria-selected", v === cual);
+  }
   window.scrollTo(0, 0);
 }
 $("#pestana-catedras").addEventListener("click", () => mostrarVista("catedras"));
 $("#pestana-universidades").addEventListener("click", () => mostrarVista("universidades"));
+$("#pestana-cambios").addEventListener("click", () => mostrarVista("cambios"));
 
 let temporizador;
 $("#busqueda").addEventListener("input", (e) => {
@@ -691,6 +754,155 @@ $("#descargar").addEventListener("click", () => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
+});
+
+/* ---------- Sección de cambios ---------- */
+function pintarCambios() {
+  const lista = [...(datos.cambios || [])].reverse();
+  $("#sin-cambios").hidden = lista.length > 0;
+  $("#marco-cambios").hidden = lista.length === 0;
+  const claseCambio = { Alta: "cambio-alta", Baja: "cambio-baja", "Posible baja": "cambio-aviso", "Posible cambio de nombre": "cambio-aviso" };
+  const campos = { director: "Dirección", web: "Web", email: "Email", entidad_colaboradora: "Entidad", nombre: "Nombre" };
+  const fechaCorta = (f) => new Date(f + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
+  $("#cuerpo-cambios").innerHTML = lista.map((c) => {
+    let detalle = "";
+    if (c.campo) detalle = `${campos[c.campo] || esc(c.campo)}: ${esc(c.valor_anterior) || "(vacío)"} → ${esc(c.valor_nuevo) || "(vacío)"}`;
+    return `<tr><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.universidad)}</strong></td><td>${esc(c.nombre)}</td><td><span class="tipo-cambio ${claseCambio[c.tipo_cambio] || ""}">${esc(c.tipo_cambio)}</span></td><td>${detalle}</td></tr>`;
+  }).join("");
+}
+
+/* ---------- Actualización: el permiso llega dentro de los datos cifrados ---------- */
+const FLUJO = "actualizar.yml", FLUJO_MENSUAL = "mensual.yml";
+const MINUTOS_SI_NO_SE_SABE = 20;
+let esperando = 0, relojEstado = null;
+
+async function gh(ruta, opciones = {}) {
+  const r = await fetch(`https://api.github.com/repos/${datos.github.repo}${ruta}`, {
+    ...opciones,
+    cache: "no-store",
+    headers: { Authorization: `Bearer ${datos.github.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opciones.headers || {}) },
+  });
+  if (r.status === 401) throw new Error("caducado");
+  if (!r.ok) throw new Error("github");
+  return r;
+}
+function mostrarEstado(html, problema = false) {
+  const caja = $("#estado-act");
+  caja.hidden = !html;
+  caja.classList.toggle("problema", problema);
+  caja.innerHTML = html;
+}
+function mensajeError(e) {
+  return e.message === "caducado"
+    ? "El permiso para actualizar ha caducado. Hay que renovarlo en GitHub."
+    : "No se ha podido contactar con GitHub. Vuelve a probar en un rato.";
+}
+async function minutosEstimados() {
+  try {
+    const r = await (await gh(`/actions/workflows/${FLUJO}/runs?status=success&per_page=1`)).json();
+    const ultimo = r.workflow_runs?.[0];
+    if (ultimo) return Math.max(1, Math.ceil((new Date(ultimo.updated_at) - new Date(ultimo.run_started_at)) / 60000));
+  } catch { /* se usa la estimación */ }
+  return MINUTOS_SI_NO_SE_SABE;
+}
+async function comprobarEstado() {
+  clearTimeout(relojEstado);
+  const boton = $("#actualizar");
+  try {
+    const r = await (await gh(`/actions/workflows/${FLUJO}/runs?per_page=1`)).json();
+    const ejecucion = r.workflow_runs?.[0];
+    const reciente = ejecucion && new Date(ejecucion.created_at).getTime() >= esperando - 60000;
+    if (ejecucion && ejecucion.status !== "completed") {
+      const hace = Math.max(0, Math.round((Date.now() - new Date(ejecucion.created_at)) / 60000));
+      boton.disabled = true;
+      esperando = esperando || new Date(ejecucion.created_at).getTime();
+      mostrarEstado(hace ? `Actualizando… empezó hace ${hace} min` : "Actualizando…");
+      relojEstado = setTimeout(comprobarEstado, 30000);
+      return;
+    }
+    if (esperando && !reciente) {  // GitHub aún no ha registrado la orden
+      boton.disabled = true;
+      mostrarEstado("Poniéndose en marcha…");
+      relojEstado = setTimeout(comprobarEstado, 5000);
+      return;
+    }
+    if (esperando && ejecucion.conclusion !== "success") {
+      esperando = 0;
+      boton.disabled = false;
+      mostrarEstado("La actualización no ha terminado bien. Los datos anteriores siguen disponibles.", true);
+      return;
+    }
+    if (esperando) {
+      boton.disabled = true;
+      mostrarEstado("Publicando los datos nuevos…");
+      relojEstado = setTimeout(comprobarPublicacion, 15000);
+      return;
+    }
+    boton.disabled = false;
+    mostrarEstado("");
+  } catch (e) {
+    boton.disabled = false;
+    mostrarEstado(mensajeError(e), true);
+  }
+}
+async function comprobarPublicacion() {
+  try {
+    const r = await fetch("datos.enc.json?t=" + Date.now(), { cache: "no-store" });
+    const paquete = await r.json();
+    if (paquete.version !== VERSION) {
+      esperando = 0;
+      $("#actualizar").disabled = false;
+      mostrarEstado('Hay datos nuevos.<button class="boton-texto" id="ver-nuevos" type="button">Verlos</button>');
+      $("#ver-nuevos").addEventListener("click", () => location.replace("?v=" + encodeURIComponent(paquete.version)));
+      return;
+    }
+  } catch { /* se vuelve a probar */ }
+  relojEstado = setTimeout(comprobarPublicacion, 20000);
+}
+async function pintarMensual() {
+  const caja = $("#mensual"), texto = $("#mensual-texto");
+  try {
+    const flujo = await (await gh(`/actions/workflows/${FLUJO_MENSUAL}`)).json();
+    caja.checked = flujo.state === "active";
+    texto.textContent = caja.checked ? "Activada: se actualiza sola el día 1 de cada mes." : "Desactivada: solo se actualiza al pulsar «Actualizar datos».";
+    $("#caja-mensual").hidden = false;
+  } catch { $("#caja-mensual").hidden = true; }
+}
+function iniciarActualizacion() {
+  if (!datos.github?.token) return;
+  $("#actualizar").hidden = false;
+  comprobarEstado();
+  pintarMensual();
+}
+$("#actualizar").addEventListener("click", async () => {
+  const boton = $("#actualizar");
+  boton.disabled = true;
+  const minutos = await minutosEstimados();
+  boton.disabled = false;
+  $("#dialogo-tiempo").textContent = `Tardará unos ${minutos} minutos.`;
+  $("#dialogo-actualizar").showModal();
+});
+$("#dialogo-no").addEventListener("click", () => $("#dialogo-actualizar").close());
+$("#dialogo-si").addEventListener("click", async () => {
+  $("#dialogo-actualizar").close();
+  try {
+    await gh(`/actions/workflows/${FLUJO}/dispatches`, { method: "POST", body: JSON.stringify({ ref: "main" }), headers: { "Content-Type": "application/json" } });
+    esperando = Date.now();
+    $("#actualizar").disabled = true;
+    mostrarEstado("Poniéndose en marcha…");
+    relojEstado = setTimeout(comprobarEstado, 5000);
+  } catch (e) { mostrarEstado(mensajeError(e), true); }
+});
+$("#mensual").addEventListener("change", async (e) => {
+  const caja = e.target, activar = caja.checked;
+  caja.disabled = true;
+  try {
+    await gh(`/actions/workflows/${FLUJO_MENSUAL}/${activar ? "enable" : "disable"}`, { method: "PUT" });
+    await pintarMensual();
+  } catch (err) {
+    caja.checked = !activar;
+    $("#mensual-texto").textContent = mensajeError(err);
+  } finally { caja.disabled = false; }
 });
 
 arrancar();
