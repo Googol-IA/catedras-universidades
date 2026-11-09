@@ -51,6 +51,13 @@ def comparar(previas, fecha_previa, nuevas, fallos, fecha, pendientes, siglas):
                 motivo = fallos.get(sig, "no se encontró ningún registro")
                 avisos.append({"universidad": sig, "tipo": "Error", "detalle": f"No se pudo actualizar ({motivo}): se mantienen los datos del {fecha_previa}."})
                 pendientes_nuevos.update({k: v for k, v in pendientes.items() if k in antes})
+            elif sig in fallos:
+                avisos.append({"universidad": sig, "tipo": "Error", "detalle": f"No se pudo descargar ({fallos[sig]}): todavía no hay datos suyos."})
+            continue
+
+        # Primera carga de una universidad: no son novedades, así que no llenan «Cambios».
+        if not antes:
+            finales[sig] = list({f["clave_normalizada"]: f for f in lista}.values())
             continue
 
         ahora = {f["clave_normalizada"]: f for f in lista}

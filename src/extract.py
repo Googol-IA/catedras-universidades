@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import extractores  # noqa: E402
+import extractores_privadas  # noqa: E402
 from comun import Universidad, limpiar, sin_repetidos, texto  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -110,6 +111,9 @@ EXTRACTORES = {
     "UVIGO": extractores.uvigo, "UIB": extractores.uib, "UNIRIOJA": extractores.unirioja,
     "EHU": extractores.ehu, "UM": extractores.um, "UPCT": extractores.upct,
 }
+
+
+EXTRACTORES.update(extractores_privadas.EXTRACTORES)
 
 
 class Paginas(Universidad):

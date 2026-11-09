@@ -59,7 +59,7 @@ INSTITUCIONAL = re.compile(
 # Existen, pero no sirven para contactar con una cátedra: ni siquiera como genéricas.
 INUTIL = re.compile(
     r"^(webmaster|web|admin|administrador|administracion|noreply|no-reply|donotreply|registro|registre|rgpd|lopd|dpo|dpd|"
-    r"protecciondatos|protecciondedatos|proteccion\.datos|privacidad|privacy|sugerencias|cau|soporte|support|ayuda|abuse|postmaster|"
+    r"protecciondatos|protecciondedatos|proteccion\.datos|prodatos|privacidad|privacy|sugerencias|international|internacional|cau|soporte|support|ayuda|abuse|postmaster|"
     r"rector|rectora|rectorado|rectorat|gerencia|alumni|alumniub|carreres\.professionals|adj\.cienciaoberta|ed\.direccio)(\d*)@", re.I)
 TEXTO_CONTACTO = re.compile(r"contact|contacte|kontakt|harremanet|qui[eé]nes\s+somos|qui\s+som|equipo|equip\b", re.I)
 _ULTIMA = collections.defaultdict(float)
@@ -225,7 +225,8 @@ def elegir(visto, genericos_uni, webs=()):
         return propios, [e for e in limpias if e not in propios]
 
     def utiles_primero(lista):
-        cercanas = [e for e in lista if not webs or _mismo_dominio(e, *webs)]
+        # Una dirección de persona repetida en varias páginas no es un contacto genérico.
+        cercanas = [e for e in lista if (not webs or _mismo_dominio(e, *webs)) and not re.match(r"[a-z]\.[a-z]+@", e)]
         return sorted(cercanas, key=lambda e: (not re.match(r"c[aà]tedr|gestioncatedr|mecenazgo", e), not e.startswith("info"), e))
 
     propios_web, genericos_web = clasificar(visto["web"])
@@ -259,16 +260,31 @@ def aplicar(nuevas, previas, genericos):
     todas = [f for lista in nuevas.values() for f in lista]
     claves = {f["clave_normalizada"] for f in visitables([dict(x, email=None) for x in todas])}
     por_buscar = [f for f in por_buscar if f["clave_normalizada"] in claves]
-    navegador, encontrados = Navegador(), 0
+    # Primero se visita todo: una dirección repetida entre las nuevas también es genérica.
+    por_web, vistos = collections.defaultdict(list), {}
+    for f in por_buscar:
+        por_web[urlparse(f["web"]).netloc].append(f)
+
+    def tarea(de_una_web):
+        for f in de_una_web:
+            vistos[f["clave_normalizada"]] = visitar(f["web"])
+
+    with ThreadPoolExecutor(HILOS) as grupo:
+        list(grupo.map(tarea, por_web.values()))
+    navegador = Navegador()
     try:
         for f in por_buscar:
-            visto = visitar(f["web"])
-            if not visto["web"] and not visto["contacto"]:
-                visto = visitar(f["web"], navegador)
-            f["email"], f["email_tipo"] = elegir(visto, set(genericos.get(f["universidad"], [])), (f.get("web"), f.get("url_origen")))
-            encontrados += bool(f["email"])
+            if not vistos[f["clave_normalizada"]]["web"] and not vistos[f["clave_normalizada"]]["contacto"]:
+                vistos[f["clave_normalizada"]] = visitar(f["web"], navegador)
     finally:
         navegador.cerrar()
+
+    for u, repetidas in genericos_de(por_buscar, vistos).items():
+        genericos[u] = sorted(set(genericos.get(u, [])) | repetidas)
+    encontrados = 0
+    for f in por_buscar:
+        f["email"], f["email_tipo"] = elegir(vistos[f["clave_normalizada"]], set(genericos.get(f["universidad"], [])), (f.get("web"), f.get("url_origen")))
+        encontrados += bool(f["email"])
     return len(por_buscar), encontrados
 
 

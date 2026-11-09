@@ -22,7 +22,7 @@ from comun import COLUMNAS  # noqa: E402
 RAIZ = Path(__file__).resolve().parent.parent
 ANCHOS = {"universidad": 11, "nombre": 58, "tipo": 9, "entidad_colaboradora": 34, "director": 30, "web": 38, "email": 34, "email_tipo": 12,
           "campus_centro": 28, "url_origen": 38, "fecha_captura": 12, "clave_normalizada": 38, "observaciones": 40, "descripcion": 60}
-CAMPOS_UNIVERSIDADES = ["universidad", "nombre_completo", "comunidad", "estado", "n_registros", "listado_central", "url_catedras",
+CAMPOS_UNIVERSIDADES = ["universidad", "nombre_completo", "comunidad", "titularidad", "estado", "n_registros", "listado_central", "url_catedras",
                         "carga_con_javascript", "metodo_descarga", "ultima_captura", "notas"]
 CAMPOS_NORMATIVA = ["universidad", "siglas", "comunidad", "titularidad", "estado", "norma", "anio", "url", "notas"]
 CAMPOS_ERRORES = ["universidad", "tipo", "detalle"]
@@ -94,8 +94,13 @@ def construir(ruta_salida=None):
     libro = Workbook()
     hoja = libro.active
     hoja.title = "Cátedras"
-    escribir_hoja(hoja, COLUMNAS, filas, "Catedras", ANCHOS)
-    col_web = COLUMNAS.index("web") + 1
+    # La titularidad sale del inventario; va junto a la universidad para poder filtrar en el Excel.
+    titularidad = {u["universidad"]: u.get("titularidad", "") for u in universidades}
+    for f in filas:
+        f["titularidad"] = titularidad.get(f["universidad"], "")
+    columnas = ["universidad", "titularidad"] + COLUMNAS[1:]
+    escribir_hoja(hoja, columnas, filas, "Catedras", ANCHOS | {"titularidad": 11})
+    col_web = columnas.index("web") + 1
     for fila in range(2, len(filas) + 2):
         celda = hoja.cell(row=fila, column=col_web)
         if celda.value:

@@ -262,7 +262,7 @@ th.num button { justify-content: flex-end; }
 <main class="entrada" id="entrada">
   <form id="formulario" autocomplete="on">
     <h1>Directorio de cátedras</h1>
-    <p>Cátedras y aulas de las universidades públicas españolas. Escribe la contraseña para consultarlo.</p>
+    <p>Cátedras y aulas de las universidades españolas, públicas y privadas. Escribe la contraseña para consultarlo.</p>
     <input type="text" name="username" value="catedras" autocomplete="username" hidden>
     <label class="campo-etiqueta" for="contrasena">Contraseña</label>
     <input type="password" id="contrasena" autocomplete="current-password" required autofocus>
@@ -295,6 +295,7 @@ th.num button { justify-content: flex-end; }
         <h2>Filtrar</h2>
         <button class="boton-texto" id="quitar-filtros" type="button" hidden>Quitar filtros</button>
       </div>
+      <fieldset class="grupo"><legend>Pública o privada</legend><div id="f-titularidad"></div></fieldset>
       <fieldset class="grupo"><legend>Tipo</legend><div id="f-tipo"></div></fieldset>
       <fieldset class="grupo"><legend>Comunidad</legend><div class="lista-opciones" id="f-comunidad"></div></fieldset>
       <fieldset class="grupo"><legend>Universidad</legend>
@@ -347,6 +348,9 @@ th.num button { justify-content: flex-end; }
     <div class="filtros-uni">
       <label class="campo-uni campo-uni-busca">Buscar
         <input id="uni-busqueda" type="search" placeholder="Nombre o siglas" autocomplete="off">
+      </label>
+      <label class="campo-uni">Pública o privada
+        <select id="uni-titularidad"></select>
       </label>
       <label class="campo-uni">Comunidad
         <select id="uni-comunidad"></select>
@@ -410,7 +414,8 @@ th.num button { justify-content: flex-end; }
     <div class="aviso-uni">
       <p><strong>UB:</strong> el botón no la renueva, porque bloquea a GitHub. Sus datos pueden irse quedando antiguos, y por eso sale como «No actualizada».</p>
       <p><strong>UIB y ULL:</strong> unas veces responden a GitHub y otras no. Cuando fallan conservan los datos anteriores y salen como «No actualizada» hasta la siguiente actualización.</p>
-      <p><strong>USAL y UIMP:</strong> no tienen listado.</p>
+      <p><strong>USAL, UIMP y otras universidades privadas:</strong> no tienen listado localizado. En la pestaña Universidades, el filtro de estado «Sin listado» las muestra, con una nota de dónde mirar.</p>
+      <p><strong>Deusto y UNIR:</strong> sus webs rechazan la descarga automática, así que no hay datos suyos.</p>
     </div>
     <label class="ajuste" id="caja-mensual" hidden>
       <input type="checkbox" role="switch" id="mensual">
@@ -457,7 +462,7 @@ const COLUMNAS = [
 ];
 
 let datos = null;
-const estado = { q: "", comunidad: new Set(), universidad: new Set(), tipo: new Set(), solo: new Set(), orden: "universidad", sentido: 1, abiertas: new Set(), buscarUni: "" };
+const estado = { q: "", titularidad: new Set(), comunidad: new Set(), universidad: new Set(), tipo: new Set(), solo: new Set(), orden: "universidad", sentido: 1, abiertas: new Set(), buscarUni: "" };
 const comparar = new Intl.Collator("es", { sensitivity: "base", numeric: true }).compare;
 
 /* ---------- Cifrado: JSON → gzip → AES-256-GCM, clave PBKDF2-SHA256 ---------- */
@@ -535,9 +540,11 @@ const enlaceSeguro = (u) => /^https?:\/\//i.test(u || "") ? u : null;
 function entrar(contenido) {
   datos = contenido;
   const comunidad = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.comunidad]));
+  const titularidadUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.titularidad]));
   const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.nombre_completo]));
   for (const f of datos.catedras) {
     f.comunidad = comunidad[f.universidad] || "";
+    f.titularidad = titularidadUni[f.universidad] || "";
     f.nombre_universidad = nombreUni[f.universidad] || "";
     f._visible = palabras([f.universidad, f.nombre_universidad, f.nombre, f.entidad_colaboradora, f.director, f.campus_centro, f.comunidad].join(" "));
     f._oculto = palabras([f.descripcion, f.observaciones, f.email].join(" "));
@@ -566,6 +573,7 @@ const terminos = () => norm(estado.q).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
 const palabras = (t) => " " + norm(t).replace(/[^\p{L}\p{N}]+/gu, " ");
 const contiene = (texto, x) => texto.includes(" " + x);
 function pasa(f, ignorar) {
+  if (ignorar !== "titularidad" && estado.titularidad.size && !estado.titularidad.has(f.titularidad)) return false;
   if (ignorar !== "tipo" && estado.tipo.size && !estado.tipo.has(f.tipo)) return false;
   if (ignorar !== "comunidad" && estado.comunidad.size && !estado.comunidad.has(f.comunidad)) return false;
   if (ignorar !== "universidad" && estado.universidad.size && !estado.universidad.has(f.universidad)) return false;
@@ -634,11 +642,13 @@ function opciones(destino, campo, valores, etiqueta) {
 }
 
 function pintarFiltros() {
+  opciones($("#f-titularidad"), "titularidad", ["Pública", "Privada"], (v) => v === "Pública" ? "Públicas" : "Privadas");
   opciones($("#f-tipo"), "tipo", ["Cátedra", "Aula"], (v) => v === "Aula" ? "Aulas" : "Cátedras");
   const comunidades = [...new Set(datos.universidades.map((u) => u.comunidad))].sort(comparar);
   opciones($("#f-comunidad"), "comunidad", comunidades);
   const busca = norm(estado.buscarUni);
   const unis = datos.universidades
+    .filter((u) => !estado.titularidad.size || estado.titularidad.has(u.titularidad) || estado.universidad.has(u.universidad))
     .filter((u) => !estado.comunidad.size || estado.comunidad.has(u.comunidad) || estado.universidad.has(u.universidad))
     .filter((u) => !busca || norm(u.universidad + " " + u.nombre_completo).includes(busca) || estado.universidad.has(u.universidad))
     .sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
@@ -653,6 +663,7 @@ function pintarChips() {
   const chips = [];
   const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.universidad]));
   const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", email_propio: "Con email propio", compartida: "Compartidas" };
+  for (const v of estado.titularidad) chips.push(["titularidad", v, v === "Pública" ? "Públicas" : "Privadas"]);
   for (const v of estado.tipo) chips.push(["tipo", v, v === "Aula" ? "Aulas" : "Cátedras"]);
   for (const v of estado.comunidad) chips.push(["comunidad", v, v]);
   for (const v of estado.universidad) chips.push(["universidad", v, nombreUni[v]]);
@@ -761,7 +772,7 @@ function pintarUniversidades() {
     avisos.get(e.universidad).push(e.detalle);
   }
   const conDatos = datos.universidades.filter((u) => Number(u.n_registros) > 0).length;
-  $("#explica-universidades").textContent = `Hay datos de ${conDatos} de las ${datos.universidades.length} universidades públicas. Cada universidad publica sus cátedras a su manera: «Con aviso» indica algo que conviene tener en cuenta, sobre todo que su lista puede no estar completa.`;
+  $("#explica-universidades").textContent = `Hay datos de ${conDatos} de las ${datos.universidades.length} universidades, públicas y privadas. Cada universidad publica sus cátedras a su manera: «Con aviso» indica algo que conviene tener en cuenta, sobre todo que su lista puede no estar completa.`;
   avisosUni = avisos;
   $("#cabeza-uni").innerHTML = COLUMNAS_UNI.map(([c, t, cl]) => `<th class="${cl}" data-col-uni="${c}"><button type="button">${t}${FLECHA}</button></th>`).join("") + "<th>Notas</th>";
   const contar = (campo) => {
@@ -774,6 +785,7 @@ function pintarUniversidades() {
     select.innerHTML = `<option value="">${primera}</option>` + lista.map(([valor, etiqueta, n]) => `<option value="${esc(valor)}">${esc(etiqueta)} (${n})</option>`).join("");
     select.value = lista.some(([valor]) => valor === previo) ? previo : "";
   };
+  opciones($("#uni-titularidad"), "Todas", [...contar("titularidad")].sort((a, b) => comparar(b[0], a[0])).map(([c, n]) => [c, c === "Pública" ? "Públicas" : "Privadas", n]));
   opciones($("#uni-comunidad"), "Todas", [...contar("comunidad")].sort((a, b) => comparar(a[0], b[0])).map(([c, n]) => [c, c, n]));
   const estados = contar("estado");
   const conocidos = Object.keys(TEXTO_ESTADO).filter((e) => estados.has(e));
@@ -787,10 +799,12 @@ function pintarFilasUniversidades() {
   const clase = { OK: "estado-ok", AVISO: "estado-aviso", "SIN LISTADO": "estado-sin", ERROR: "estado-error" };
   const texto = TEXTO_ESTADO;
   const q = norm($("#uni-busqueda").value.trim());
+  const titularidadElegida = $("#uni-titularidad").value;
   const comunidad = $("#uni-comunidad").value;
   const estadoUni = $("#uni-estado").value;
   const unis = datos.universidades
     .filter((u) => (!q || norm(`${u.nombre_completo} ${u.universidad}`).includes(q))
+      && (!titularidadElegida || u.titularidad === titularidadElegida)
       && (!comunidad || u.comunidad === comunidad)
       && (!estadoUni || u.estado === estadoUni))
     .sort(compararUni);
@@ -802,7 +816,7 @@ function pintarFilasUniversidades() {
   $("#uni-recuento").innerHTML = unis.length === total
     ? `${total} <span>universidades</span>`
     : `${unis.length} <span>de ${total}</span>`;
-  $("#uni-quitar").hidden = !(q || comunidad || estadoUni);
+  $("#uni-quitar").hidden = !(q || titularidadElegida || comunidad || estadoUni);
   $("#marco-uni").hidden = unis.length === 0;
   $("#uni-vacio").hidden = unis.length > 0;
   $("#cuerpo-universidades").innerHTML = unis.map((u) => {
@@ -913,7 +927,7 @@ $("#filtros").addEventListener("change", (e) => {
   document.querySelector(`#filtros input[data-campo="${foco[0]}"][value="${CSS.escape(foco[1])}"]`)?.focus();
 });
 function quitarTodo() {
-  for (const c of ["tipo", "comunidad", "universidad", "solo"]) estado[c].clear();
+  for (const c of ["titularidad", "tipo", "comunidad", "universidad", "solo"]) estado[c].clear();
   pintar();
 }
 $("#quitar-filtros").addEventListener("click", quitarTodo);
@@ -951,10 +965,12 @@ $("#cabeza-uni").addEventListener("click", (e) => {
   pintarFilasUniversidades();
 });
 $("#uni-busqueda").addEventListener("input", pintarFilasUniversidades);
+$("#uni-titularidad").addEventListener("change", pintarFilasUniversidades);
 $("#uni-comunidad").addEventListener("change", pintarFilasUniversidades);
 $("#uni-estado").addEventListener("change", pintarFilasUniversidades);
 $("#uni-quitar").addEventListener("click", () => {
   $("#uni-busqueda").value = "";
+  $("#uni-titularidad").value = "";
   $("#uni-comunidad").value = "";
   $("#uni-estado").value = "";
   pintarFilasUniversidades();

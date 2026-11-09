@@ -81,6 +81,16 @@ ENLACES_ROTOS = {
     "UNEX": "De 10 enlaces revisados, 4 no abrían.",
 }
 ESTADOS_SIN_LISTADO = {"USAL": "Sin listado central: noticias y Vicerrectorado de Transferencia.", "UIMP": "Sin listado central: solo noticias sueltas."}
+# Privadas sin listado: se muestra su nota del inventario, que indica dónde mirar. No se ha buscado cátedra por cátedra.
+AVISOS.update({
+    "UEM": "Sin listado: tres páginas sueltas de la web común a las cuatro universidades Europea; no consta a cuál pertenece cada cátedra.",
+    "CUNEF": "Sin listado: solo se ha localizado la página de esta cátedra. Puede tener más.",
+    "IE": "Sin listado: solo se ha localizado la página de esta cátedra, sin que conste el campus. Puede tener más.",
+    "UNEATLANTICO": "Sin listado: solo se ha localizado la página de esta cátedra. Puede tener más.",
+    "URL": "Solo las de la propia universidad; cada centro puede tener las suyas.",
+    "NEBRIJA": "Su listado incluye además observatorios, que no se recogen.",
+    "COMILLAS": "Su listado incluye además observatorios, que no se recogen.",
+})
 
 DETECTOR = re.compile(r"(?:C[ÁA]TEDRA|Cátedra|Càtedra|Catedra|Aula|AULA)\s+[^\s<>|]+(?:[ \t]+[^\s<>|.,;:]+){0,7}")
 GENERICAS = re.compile(
@@ -248,7 +258,11 @@ def main():
         for a in json.loads(ruta_avisos.read_text(encoding="utf-8")):
             errores.append(a)
             con_error[a["universidad"]] = True
-    for sig, texto_aviso in ESTADOS_SIN_LISTADO.items():
+    sin_listado = dict(ESTADOS_SIN_LISTADO)
+    for u in inventario:  # privadas sin página de cátedras localizada
+        if u.get("titularidad") == "Privada" and not u["url_catedras"]:
+            sin_listado[u["universidad"]] = u["notas"]
+    for sig, texto_aviso in sin_listado.items():
         errores.append({"universidad": sig, "tipo": "Sin listado", "detalle": texto_aviso})
     for sig, texto_aviso in AVISOS.items():
         errores.append({"universidad": sig, "tipo": "Aviso", "detalle": texto_aviso})
@@ -262,7 +276,7 @@ def main():
         sig = u["universidad"]
         u["n_registros"] = len(todas.get(sig, []))
         u["ultima_captura"] = fecha if sig in todas else ""
-        u["estado"] = "SIN LISTADO" if sig in ESTADOS_SIN_LISTADO else ("ERROR" if sig in con_error else ("AVISO" if sig in AVISOS else "OK"))
+        u["estado"] = "SIN LISTADO" if sig in sin_listado else ("ERROR" if sig in con_error else ("AVISO" if sig in AVISOS else "OK"))
     campos = list(inventario[0])
     with open(RAIZ / "universidades.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=campos, delimiter=";")

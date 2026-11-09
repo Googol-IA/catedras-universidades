@@ -33,7 +33,7 @@ ITERACIONES = 600_000
 MINIMO_CONTRASENA = 12
 CAMPOS_FILA = ["fecha_captura", "universidad", "nombre", "tipo", "entidad_colaboradora", "director", "web", "email", "email_tipo", "campus_centro",
                "url_origen", "clave_normalizada", "observaciones", "descripcion"]
-CAMPOS_UNIVERSIDAD = ["universidad", "nombre_completo", "comunidad", "estado", "n_registros", "url_catedras"]
+CAMPOS_UNIVERSIDAD = ["universidad", "nombre_completo", "comunidad", "titularidad", "estado", "n_registros", "url_catedras"]
 
 
 def b64(datos):
