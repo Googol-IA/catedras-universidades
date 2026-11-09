@@ -50,7 +50,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html datos.enc.json universidades.csv
-          git rm -q --cached --ignore-unmatch emails.enc.json
+          git rm -q --cached --ignore-unmatch emails.enc.json manuales.enc.json
           git commit -m "Datos actualizados"
           git push
           gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds"

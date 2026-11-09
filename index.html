@@ -176,7 +176,8 @@ dl.datos dd { margin: 0; overflow-wrap: anywhere; }
 /* Vista de universidades */
 .vista-universidades { padding: 1.25rem; max-width: 78rem; margin: 0 auto; }
 .vista-universidades h2 { font: 600 1.5rem/1.2 var(--titulo); margin: 0 0 0.35rem; }
-.vista-universidades > p { color: var(--tinta-2); margin: 0 0 1.1rem; max-width: 75ch; }
+.vista-universidades > p { color: var(--tinta-2); margin: 0 0 1.1rem; }
+.etiqueta-fiable { display: inline-block; margin-left: 0.35rem; padding: 0 0.35rem; border-radius: 4px; background: var(--aviso-fondo); color: var(--aviso-tinta); font-size: 0.75rem; font-weight: 550; white-space: nowrap; }
 .estado { font-weight: 600; font-size: 0.8125rem; white-space: nowrap; }
 .estado-ok { color: var(--ok-tinta); }
 .estado-aviso { color: var(--aviso-tinta); }
@@ -415,7 +416,8 @@ th.num button { justify-content: flex-end; }
       <p><strong>UB:</strong> el botón no la renueva, porque bloquea a GitHub. Sus datos pueden irse quedando antiguos, y por eso sale como «No actualizada».</p>
       <p><strong>UIB y ULL:</strong> unas veces responden a GitHub y otras no. Cuando fallan conservan los datos anteriores y salen como «No actualizada» hasta la siguiente actualización.</p>
       <p><strong>USAL, UIMP y otras universidades privadas:</strong> no tienen listado localizado. En la pestaña Universidades, el filtro de estado «Sin listado» las muestra, con una nota de dónde mirar.</p>
-      <p><strong>Deusto y UNIR:</strong> sus webs rechazan la descarga automática, así que no hay datos suyos.</p>
+      <p><strong>Deusto y UNIR:</strong> sus webs rechazan la descarga automática; solo hay algunas cátedras suyas, vistas en un buscador.</p>
+      <p><strong>Cátedras «Menos fiable»:</strong> se han localizado en noticias o memorias de la propia universidad, no en un listado. Pueden no seguir activas y el botón no las actualiza. Se ven con el filtro «Menos fiable».</p>
     </div>
     <label class="ajuste" id="caja-mensual" hidden>
       <input type="checkbox" role="switch" id="mensual">
@@ -551,6 +553,7 @@ function entrar(contenido) {
     f._orden = {};
     f._compartida = /Interuniversitaria|Menciona a/.test(f.observaciones || "");
     f.email_propio = Boolean(f.email) && f.email_tipo !== "Genérico";
+    f.menos_fiable = /^Menos fiable/.test(f.observaciones || "");
   }
   $("#entrada").hidden = true;
   $("#aplicacion").hidden = false;
@@ -654,7 +657,7 @@ function pintarFiltros() {
     .sort((a, b) => comparar(a.nombre_completo, b.nombre_completo));
   const nombres = Object.fromEntries(unis.map((u) => [u.universidad, u.nombre_completo]));
   opciones($("#f-universidad"), "universidad", unis.map((u) => u.universidad), (v) => nombres[v]);
-  const solo = [["entidad_colaboradora", "Entidad colaboradora"], ["director", "Dirección"], ["web", "Web"], ["email", "Email"], ["email_propio", "Email propio, no genérico"], ["compartida", "Posiblemente compartida entre universidades"]];
+  const solo = [["entidad_colaboradora", "Entidad colaboradora"], ["director", "Dirección"], ["web", "Web"], ["email", "Email"], ["email_propio", "Email propio, no genérico"], ["menos_fiable", "Menos fiable: de noticias o memorias"], ["compartida", "Posiblemente compartida entre universidades"]];
   const contar = (s) => datos.catedras.filter((f) => pasa(f, "solo") && (s === "compartida" ? f._compartida : f[s])).length;
   $("#f-solo").innerHTML = solo.map(([v, t]) => `<label class="opcion"><input type="checkbox" data-campo="solo" value="${v}" ${estado.solo.has(v) ? "checked" : ""}><span class="opcion-texto">${t}</span><span class="opcion-num">${contar(v)}</span></label>`).join("");
 }
@@ -662,7 +665,7 @@ function pintarFiltros() {
 function pintarChips() {
   const chips = [];
   const nombreUni = Object.fromEntries(datos.universidades.map((u) => [u.universidad, u.universidad]));
-  const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", email_propio: "Con email propio", compartida: "Compartidas" };
+  const textoSolo = { entidad_colaboradora: "Con entidad", director: "Con dirección", web: "Con web", email: "Con email", email_propio: "Con email propio", menos_fiable: "Menos fiables", compartida: "Compartidas" };
   for (const v of estado.titularidad) chips.push(["titularidad", v, v === "Pública" ? "Públicas" : "Privadas"]);
   for (const v of estado.tipo) chips.push(["tipo", v, v === "Aula" ? "Aulas" : "Cátedras"]);
   for (const v of estado.comunidad) chips.push(["comunidad", v, v]);
@@ -707,7 +710,7 @@ function pintar() {
     const fila = `<tr class="fila${abierta ? " abierta" : ""}">
       <td><button class="abrir" type="button" data-id="${esc(id)}" aria-expanded="${abierta}" aria-label="${abierta ? "Cerrar" : "Ver"} detalle de ${esc(f.nombre)}">${CHEVRON}</button></td>
       <td class="col-uni" title="${esc(f.nombre_universidad)}">${marcar(f.universidad)}</td>
-      <td class="col-nombre">${nombre}${f.tipo === "Aula" ? ' <span class="etiqueta-aula">Aula</span>' : ""}${compartida}${fragmento(f)}</td>
+      <td class="col-nombre">${nombre}${f.tipo === "Aula" ? ' <span class="etiqueta-aula">Aula</span>' : ""}${f.menos_fiable ? '<span class="etiqueta-fiable" title="Localizada en una noticia o memoria, no en un listado">Menos fiable</span>' : ""}${compartida}${fragmento(f)}</td>
       <td class="col-tipo">${esc(f.tipo)}</td>
       <td class="col-entidad${f.entidad_colaboradora ? "" : " vacia"}" data-etiqueta="Entidad">${f.entidad_colaboradora ? marcar(f.entidad_colaboradora) : celdaVacia}</td>
       <td class="col-director${f.director ? "" : " vacia"}" data-etiqueta="Dirección">${f.director ? marcar(f.director) : celdaVacia}</td>

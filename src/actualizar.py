@@ -71,6 +71,30 @@ def incorporar_busqueda(previo, clave):
     print(f"Búsqueda de emails del {busqueda['fecha']} incorporada: {len(busqueda['asignados'])} cátedras.")
 
 
+def incorporar_manuales(previo, clave):
+    """Si hay una lista de cátedras localizadas a mano recién subida (cifrada), la guarda en los datos.
+
+    Se añaden también a los datos anteriores para que no cuenten como altas en Cambios.
+    """
+    ruta = RAIZ / "manuales.enc.json"
+    if not ruta.exists():
+        return
+    manuales = build_web.descifrar(json.loads(ruta.read_text(encoding="utf-8")), clave)["filas"]
+    claves = {f["clave_normalizada"] for f in manuales}
+    previo["catedras"] = [f for f in previo["catedras"] if f["clave_normalizada"] not in claves] + manuales
+    previo["manuales"] = manuales
+    ruta.unlink()
+    print(f"Cátedras localizadas a mano incorporadas: {len(manuales)}.")
+
+
+def añadir_manuales(nuevas, manuales):
+    """Las localizadas a mano siguen en la lista: el programa no las revisa porque no salen de un listado."""
+    for f in manuales:
+        lista = nuevas.setdefault(f["universidad"], [])
+        if f["clave_normalizada"] not in {x["clave_normalizada"] for x in lista}:
+            lista.append(dict(f))
+
+
 def main():
     fecha = datetime.date.today().isoformat()
     descargar()
@@ -82,7 +106,9 @@ def main():
     previo = build_web.descifrar(json.loads((RAIZ / "datos.enc.json").read_text(encoding="utf-8")), clave)
 
     incorporar_busqueda(previo, clave)
+    incorporar_manuales(previo, clave)
     nuevas, fallos = extract.extraer_todas(fecha)
+    añadir_manuales(nuevas, previo.get("manuales", []))
     genericos = previo.get("emails_genericos", {})
     buscadas, halladas = emails.aplicar(nuevas, previo["catedras"], genericos)
     print(f"Emails: {buscadas} cátedras nuevas buscadas, {halladas} con email.")
@@ -105,7 +131,7 @@ def main():
     token = os.environ.get("TOKEN_BOTON")
     n, _ = build_web.construir_web(RAIZ, clave=clave, sal=sal, pendientes=pendientes,
                                    github={"repo": REPO, "token": token} if token else None,
-                                   extra={"emails_desde": previo.get("emails_desde"), "emails_genericos": genericos})
+                                   extra={"emails_desde": previo.get("emails_desde"), "emails_genericos": genericos, "manuales": previo.get("manuales", [])})
     print(f"Actualizado: {n} registros, {len(cambios)} cambios nuevos, {len(avisos)} universidades con problemas.")
     for a in avisos:
         print(f"  {a['universidad']}: {a['detalle']}")
