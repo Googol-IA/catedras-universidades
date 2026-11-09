@@ -51,32 +51,32 @@ UM;Universidad de Murcia;Región de Murcia;https://www.um.es/web/ecum/catedras-u
 UPCT;Universidad Politécnica de Cartagena;Región de Murcia;https://talent.upct.es/partners/red-de-catedras;Sí;Sí;navegador;;OK;2026-11-08;Hace falta navegador: en la descarga simple no aparece el listado. Los nombres no llevan la palabra «Cátedra». Los dominios antiguos ya no funcionan.;38;2026-11-09;OK;Pública
 COMILLAS;Universidad Pontificia Comillas;Madrid;https://www.comillas.edu/catedras-de-investigacion/;Sí;Sí;navegador;;OK;2026-11-09;;37;2026-11-09;AVISO;Privada
 CUNEF;CUNEF Universidad;Madrid;https://www.cunef.edu/catedra-de-la-ejemplaridad/;No;Sí;navegador;;OK;2026-11-09;Solo se ha localizado la página de esta cátedra.;1;2026-11-09;AVISO;Privada
-DEUSTO;Universidad de Deusto;País Vasco;;No consta;;;;;2026-11-09;Su web (deusto.es) rechaza la descarga automática. Mirar en su sección de investigación y en sus memorias de investigación.;0;;SIN LISTADO;Privada
-ESIC;ESIC Universidad;Madrid;;No;;;;;2026-11-09;Sin listado localizado. Sus noticias (esic.edu/noticias) citan la Cátedra de Pensamiento Analítico Divina Seguros.;0;;SIN LISTADO;Privada
+DEUSTO;Universidad de Deusto;País Vasco;;No consta;;;;;2026-11-09;Su web (deusto.es) rechaza la descarga automática. Mirar en su sección de investigación y en sus memorias de investigación.;7;2026-11-09;SIN LISTADO;Privada
+ESIC;ESIC Universidad;Madrid;;No;;;;;2026-11-09;Sin listado localizado. Sus noticias (esic.edu/noticias) citan la Cátedra de Pensamiento Analítico Divina Seguros.;1;2026-11-09;SIN LISTADO;Privada
 EUNEIZ;Universidad Euneiz;País Vasco;;No;;;;;2026-11-09;Sin listado localizado en euneiz.com.;0;;SIN LISTADO;Privada
 HESPERIDES;Universidad de las Hespérides;Canarias;;No;;;;;2026-11-09;No se ha localizado su web oficial.;0;;SIN LISTADO;Privada
 IE;IE Universidad;Castilla y León;https://www.ie.edu/dkv-ie-chair-employee-health-and-wellbeing/es/;No;No;simple;;OK;2026-11-09;Solo se ha localizado la página de esta cátedra, sin que conste si es del campus de Segovia o de Madrid.;1;2026-11-09;AVISO;Privada
 IEM;IE Universidad Madrid;Madrid;;No;;;;;2026-11-09;Comparte web con IE Universidad (ie.edu). Ver esa universidad.;0;;SIN LISTADO;Privada
-LOYOLA;Universidad Loyola Andalucía;Andalucía;;No;;;;;2026-11-09;Sin listado localizado en uloyola.es.;0;;SIN LISTADO;Privada
+LOYOLA;Universidad Loyola Andalucía;Andalucía;;No;;;;;2026-11-09;Sin listado localizado en uloyola.es.;3;2026-11-09;SIN LISTADO;Privada
 MU;Mondragon Unibertsitatea;País Vasco;;No;;;;;2026-11-09;Sin listado localizado en mondragon.edu. Mirar en investigación o en la relación universidad-empresa.;0;;SIN LISTADO;Privada
 NEBRIJA;Universidad Antonio de Nebrija;Madrid;https://www.nebrija.com/investigacion-universidad/catedras-de-investigacion/;Sí;Sí;navegador;;OK;2026-11-09;El listado incluye observatorios, que no se recogen.;10;2026-11-09;AVISO;Privada
-UAO;Universitat Abat Oliba CEU;Cataluña;;No;;;;;2026-11-09;Sin listado. Sus noticias (uaoceu.es) citan cátedras como UNESCO, Jean Monnet EUFIS y Martín el Humano.;0;;SIN LISTADO;Privada
-UAX;Universidad Alfonso X El Sabio;Madrid;;No;;;;;2026-11-09;Sin listado. Mirar su memoria académica 2024-25 (uax.com) y sus noticias, que citan cátedras concretas.;0;;SIN LISTADO;Privada
+UAO;Universitat Abat Oliba CEU;Cataluña;;No;;;;;2026-11-09;Sin listado. Sus noticias (uaoceu.es) citan cátedras como UNESCO, Jean Monnet EUFIS y Martín el Humano.;7;2026-11-09;SIN LISTADO;Privada
+UAX;Universidad Alfonso X El Sabio;Madrid;;No;;;;;2026-11-09;Sin listado. Mirar su memoria académica 2024-25 (uax.com) y sus noticias, que citan cátedras concretas.;7;2026-11-09;SIN LISTADO;Privada
 UAXMN;Universidad Alfonso X el Sabio Mare Nostrum;Andalucía;;No;;;;;2026-11-09;Sin web propia localizada. Ver Universidad Alfonso X El Sabio.;0;;SIN LISTADO;Privada
 UCAM;Universidad Católica San Antonio de Murcia;Región de Murcia;https://www.ucam.edu/universidad/catedras;Sí;Sí;navegador;;OK;2026-11-09;;34;2026-11-09;OK;Privada
 UCAV;Universidad Católica de Ávila;Castilla y León;https://www.ucavila.es/investigacion/catedras/;Sí;Sí;navegador;;OK;2026-11-09;;16;2026-11-09;OK;Privada
 UCH;Universidad CEU Cardenal Herrera;Comunidad Valenciana;https://www.uchceu.es/investigacion/catedras;Sí;Sí;navegador;;OK;2026-11-09;;17;2026-11-09;OK;Privada
-UCJC;Universidad Camilo José Cela;Madrid;https://www.ucjc.edu/profesores/estructura-academica/catedras/;Sí;Sí;navegador;;OK;2026-11-09;;8;2026-11-09;OK;Privada
+UCJC;Universidad Camilo José Cela;Madrid;https://www.ucjc.edu/profesores/estructura-academica/catedras/;Sí;Sí;navegador;;OK;2026-11-09;;8;2026-11-09;ERROR;Privada
 UCV;Universidad Católica de Valencia;Comunidad Valenciana;https://www.ucv.es/investigacion/catedras;Sí;Sí;navegador;;OK;2026-11-09;;12;2026-11-09;OK;Privada
 UDIMA;Universidad a Distancia de Madrid;Madrid;https://www.udima.es/catedras-universidad-empresa;Sí;Sí;navegador;;OK;2026-11-09;;6;2026-11-09;OK;Privada
 UDIT;Universidad de Diseño, Innovación y Tecnología (UDIT);Madrid;;No;;;;;2026-11-09;Sin listado localizado en udit.es.;0;;SIN LISTADO;Privada
 UEA;Universidad Europea de Andalucía;Andalucía;;No;;;;;2026-11-09;Web común (universidadeuropea.com). Ver Universidad Europea de Madrid.;0;;SIN LISTADO;Privada
-UEC;Universidad Europea de Canarias;Canarias;;No;;;;;2026-11-09;Web común (universidadeuropea.com). Una noticia suya cita una cátedra con CEOE Tenerife.;0;;SIN LISTADO;Privada
-UEM;Universidad Europea de Madrid;Madrid;https://universidadeuropea.com/conocenos/catedra-investigacion-sueno/;No;No;simple;https://universidadeuropea.com/conocenos/catedra-vacunas-sostenibles-pfizer/ | https://universidadeuropea.com/conocenos/catedra-fundacion-asisa-universidad-europea/;OK;2026-11-09;"Sin listado: tres páginas sueltas de la web común a sus cuatro universidades; no consta a cuál pertenece cada cátedra.";3;2026-11-09;AVISO;Privada
+UEC;Universidad Europea de Canarias;Canarias;;No;;;;;2026-11-09;Web común (universidadeuropea.com). Una noticia suya cita una cátedra con CEOE Tenerife.;1;2026-11-09;SIN LISTADO;Privada
+UEM;Universidad Europea de Madrid;Madrid;https://universidadeuropea.com/conocenos/catedra-investigacion-sueno/;No;No;simple;https://universidadeuropea.com/conocenos/catedra-vacunas-sostenibles-pfizer/ | https://universidadeuropea.com/conocenos/catedra-fundacion-asisa-universidad-europea/;OK;2026-11-09;"Sin listado: tres páginas sueltas de la web común a sus cuatro universidades; no consta a cuál pertenece cada cátedra.";11;2026-11-09;AVISO;Privada
 UEMC;Universidad Europea Miguel de Cervantes;Castilla y León;http://www.uemc.es/p/catedra-de-empresa-familiar;Sí;No;simple;;OK;2026-11-09;;3;2026-11-09;OK;Privada
-UEV;Universidad Europea de Valencia;Comunidad Valenciana;;No;;;;;2026-11-09;Web común (universidadeuropea.com). Ver Universidad Europea de Madrid.;0;;SIN LISTADO;Privada
+UEV;Universidad Europea de Valencia;Comunidad Valenciana;;No;;;;;2026-11-09;Web común (universidadeuropea.com). Ver Universidad Europea de Madrid.;1;2026-11-09;SIN LISTADO;Privada
 UF3;Universidad CEU Fernando III;Andalucía;;No;;;;;2026-11-09;"Sin listado. Publica sus criterios para crear cátedras; mirar su portal investigacion.uf3ceu.es.";0;;SIN LISTADO;Privada
-UFPC;Universidad Fernando Pessoa-Canarias;Canarias;;No;;;;;2026-11-09;Sin listado. Una noticia (ufpcanarias.com) cita su primera cátedra, con FUNCAFYM.;0;;SIN LISTADO;Privada
+UFPC;Universidad Fernando Pessoa-Canarias;Canarias;;No;;;;;2026-11-09;Sin listado. Una noticia (ufpcanarias.com) cita su primera cátedra, con FUNCAFYM.;1;2026-11-09;SIN LISTADO;Privada
 UFV;Universidad Francisco de Vitoria;Madrid;https://www.ufv.es/catedras-de-investigacion/;Sí;Sí;navegador;;OK;2026-11-09;;14;2026-11-09;OK;Privada
 UI1;Universidad Internacional Isabel I de Castilla;Castilla y León;;No;;;;;2026-11-09;Sin listado localizado en ui1.es.;0;;SIN LISTADO;Privada
 UIC;Universitat Internacional de Catalunya;Cataluña;https://www.uic.es/ca/recerca/transferencia-de-coneixement/catedres-dempreses;Sí;No;simple;https://www.uic.es/ca/recerca/transferencia-de-coneixement/aules;OK;2026-11-09;;22;2026-11-09;OK;Privada
@@ -85,16 +85,16 @@ UMALLORCA;Universidad de Mallorca;Islas Baleares;;No;;;;;2026-11-09;No se ha loc
 UNAM;Universidad del Atlántico Medio;Canarias;;No;;;;;2026-11-09;Sin listado localizado en su web.;0;;SIN LISTADO;Privada
 UNAV;Universidad de Navarra;Navarra;https://www.unav.edu/investigacion/colaboracion-con-empresas/catedras;Sí;No;simple;;OK;2026-11-09;;29;2026-11-09;OK;Privada
 UNEATLANTICO;Universidad Europea del Atlántico;Cantabria;https://uneatlantico.es/investigacion/catedra-jean-monnet;No;No;simple;;OK;2026-11-09;Solo se ha localizado la página de esta cátedra.;1;2026-11-09;AVISO;Privada
-UNIE;Universidad Internacional de la Empresa;Madrid;;No;;;;;2026-11-09;Sin listado. Mirar su memoria académica y sus noticias, que citan cátedras concretas.;0;;SIN LISTADO;Privada
+UNIE;Universidad Internacional de la Empresa;Madrid;;No;;;;;2026-11-09;Sin listado. Mirar su memoria académica y sus noticias, que citan cátedras concretas.;1;2026-11-09;SIN LISTADO;Privada
 UNINDE;Universidad Internacional para el Desarrollo UNINDE;Extremadura;;No;;;;;2026-11-09;Sin listado localizado en uninde.es. Universidad reconocida en 2025.;0;;SIN LISTADO;Privada
-UNIR;Universidad Internacional de La Rioja;La Rioja;;No consta;;;;;2026-11-09;Su web rechaza la descarga automática. Tiene página de cátedras: unir.net/universidad-online/investigacion/unir-ited/catedras/.;0;;SIN LISTADO;Privada
+UNIR;Universidad Internacional de La Rioja;La Rioja;;No consta;;;;;2026-11-09;Su web rechaza la descarga automática. Tiene página de cátedras: unir.net/universidad-online/investigacion/unir-ited/catedras/.;3;2026-11-09;SIN LISTADO;Privada
 UOC;Universitat Oberta de Catalunya;Cataluña;https://www.uoc.edu/es/universidad/alianzas;Sí;Sí;navegador;;OK;2026-11-09;;10;2026-11-09;OK;Privada
-UPSA;Universidad Pontificia de Salamanca;Castilla y León;;No;;;;;2026-11-09;Sin listado. Sus noticias (upsa.es/actualidad) citan cátedras concretas, como la de Pro Futuro con Telefónica.;0;;SIN LISTADO;Privada
+UPSA;Universidad Pontificia de Salamanca;Castilla y León;;No;;;;;2026-11-09;Sin listado. Sus noticias (upsa.es/actualidad) citan cátedras concretas, como la de Pro Futuro con Telefónica.;4;2026-11-09;SIN LISTADO;Privada
 URL;Universidad Ramon Llull;Cataluña;https://www.url.edu/ca/recerca-innovacio/catedres-url;Sí;No;simple;;OK;2026-11-09;"Solo las de la propia universidad; cada centro puede tener las suyas.";7;2026-11-09;AVISO;Privada
 USJ;Universidad San Jorge;Aragón;https://www.usj.es/investigacion/catedras;Sí;Sí;navegador;;OK;2026-11-09;;12;2026-11-09;OK;Privada
 USP;Universidad San Pablo-CEU;Madrid;https://www.uspceu.com/investigacion/catedras-investigacion;Sí;No;simple;;OK;2026-11-09;;14;2026-11-09;OK;Privada
 UTAMED;Universidad Tecnológica Atlántico-Mediterráneo;Andalucía;;No;;;;;2026-11-09;Sin listado localizado en utamed.es.;0;;SIN LISTADO;Privada
 UTIC;Universidad Tecnológica de las Islas Canarias;Canarias;;No;;;;;2026-11-09;No se ha localizado su web oficial.;0;;SIN LISTADO;Privada
 UVIC;Universidad de Vic-Universidad Central de Catalunya;Cataluña;https://www.uvic.cat/recerca/catedres;Sí;No;simple;;OK;2026-11-09;;20;2026-11-09;OK;Privada
-VILLANUEVA;Universidad Internacional Villanueva;Madrid;;No;;;;;2026-11-09;Sin listado localizado en villanueva.edu.;0;;SIN LISTADO;Privada
-VIU;Universitat Internacional Valenciana;Comunidad Valenciana;;No;;;;;2026-11-09;Sin listado. Sus noticias y eventos (universidadviu.com) citan cátedras concretas, como la de Humanización.;0;;SIN LISTADO;Privada
+VILLANUEVA;Universidad Internacional Villanueva;Madrid;;No;;;;;2026-11-09;Sin listado localizado en villanueva.edu.;1;2026-11-09;SIN LISTADO;Privada
+VIU;Universitat Internacional Valenciana;Comunidad Valenciana;;No;;;;;2026-11-09;Sin listado. Sus noticias y eventos (universidadviu.com) citan cátedras concretas, como la de Humanización.;4;2026-11-09;SIN LISTADO;Privada
